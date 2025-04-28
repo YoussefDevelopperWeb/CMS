@@ -1,0 +1,22 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/cms_db?useSSL=false&serverTimezone=UTC
+    username: root
+    password: root
+
+jpa:
+  hibernate:
+    ddl-auto: auto
+    show-sql: true
+    properties:
+      hibernate.dialect: org.hibernate.dialect.MySQL8Dialect
+
+app:
+  jwt:
+    secret: 8yruSJS42vaoICgc6poeRK5OnvjNxKdur3y10wznQfnfGw5Li+73nRAcFLy/uRffCZJqjKN+HQpcbZUpTeQuzg==
+    expiration: 86400000
+
+logging:
+  level:
+    org.springframework: INFO
+    com.company.cms.security.jwt: WARN
