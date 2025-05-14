@@ -1,0 +1,905 @@
+// Variables (reprises et complétées depuis votre code)
+$primary-color: #2563eb;
+$primary-hover: #1d4ed8;
+$primary-light: #dbeafe;
+$primary-lighter: #eff6ff;
+$secondary-color: #64748b;
+$success-color: #10b981;
+$success-light: #d1fae5;
+$danger-color: #ef4444;
+$danger-light: #fee2e2;
+$border-color: #e2e8f0;
+$bg-color: #f8fafc;
+$text-dark: #1e293b;
+$text-medium: #4b5563;
+$text-light: #94a3b8;
+$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+$shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+$transition: all 0.2s ease;
+$border-radius: 8px;
+$sidebar-width: 260px;
+$sidebar-collapsed-width: 70px;
+
+/* Base styles - Fix for scrolling issues */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  background-color: #EBF1FD;
+}
+
+body {
+    background-color: #EBF1FD;
+}
+
+/* Scrollbar styling for better UX */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: $bg-color;
+}
+
+::-webkit-scrollbar-thumb {
+  background: $secondary-color;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: $primary-color;
+}
+
+// Conteneur principal - ajuste la largeur en fonction de l'état du sidebar
+.user-management-container {
+  width: calc(100% - #{$sidebar-width});
+  margin-left: $sidebar-width;
+  padding: 24px;
+  background-color: #EBF1FD;
+
+  min-height: calc(100vh - 56px); // Soustraire la hauteur du header principal si présent
+  transition: $transition;
+  overflow-x: hidden; // Empêche le défilement horizontal
+  position: relative; // Pour le positionnement relatif des éléments internes
+  
+  &.sidebar-collapsed {
+    width: calc(100% - #{$sidebar-collapsed-width});
+    margin-left: $sidebar-collapsed-width;
+  }
+  
+  @media (max-width: 991px) {
+    width: 100%;
+    margin-left: 0;
+    padding: 16px; // Padding réduit sur petits écrans
+  }
+  
+  @media (max-width: 576px) {
+    padding: 12px; // Padding encore plus réduit sur très petits écrans
+  }
+}
+
+// En-tête avec flexbox pour titre et bouton
+.user-management-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 4px;
+  flex-wrap: wrap; // Permet le retour à la ligne sur petits écrans
+  gap: 16px; // Espace entre les éléments quand ils sont empilés
+  
+  .header-content {
+    flex: 1;
+    min-width: 250px; // Assure une taille minimale
+    
+    h2 {
+      font-size: 28px;
+      font-weight: 600;
+      color: $text-dark;
+      margin-bottom: 4px;
+      
+      @media (max-width: 576px) {
+        font-size: 20px; // Taille réduite sur petits écrans
+      }
+    }
+    
+    p {
+      color: $text-medium;
+      font-size: 14px;
+      margin-top: 0;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    
+    .btn-add {
+      width: 100%;
+    }
+  }
+}
+
+// Bouton d'ajout d'utilisateur
+.btn-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background-color: $primary-color;
+  color: white;
+  border: none;
+  border-radius: $border-radius;
+  font-weight: 500;
+  cursor: pointer;
+  transition: $transition;
+  white-space: nowrap; // Évite que le texte du bouton se wrap
+  
+  i {
+    font-size: 18px;
+  }
+  
+  &:hover {
+    background-color: $primary-hover;
+  }
+  
+  @media (max-width: 768px) {
+    width: 100%; // Bouton pleine largeur sur petit écran
+  }
+}
+
+// Alertes
+.alert {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  border-radius: $border-radius;
+  position: relative;
+  overflow: hidden; // Évite le débordement du contenu
+  
+  i {
+    margin-right: 8px;
+    font-size: 16px;
+    flex-shrink: 0; // Empêche l'icône de rétrécir
+  }
+  
+  span {
+    flex: 1; // Prend tout l'espace disponible
+    word-break: break-word; // Gère les longs mots
+  }
+  
+  .btn-close {
+    position: absolute;
+    right: 12px;
+    top: 12px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+    opacity: 0.7;
+    padding: 6px; // Zone de toucher plus grande pour mobiles
+    
+    &:hover {
+      opacity: 1;
+    }
+  }
+  
+  &.alert-error {
+    background-color: $danger-light;
+    color: $danger-color;
+    border-left: 3px solid $danger-color;
+  }
+  
+  &.alert-success {
+    background-color: $success-light;
+    color: $success-color;
+    border-left: 3px solid $success-color;
+  }
+  
+  @media (max-width: 576px) {
+    padding-right: 36px; // Espace pour le bouton de fermeture
+  }
+}
+
+// Section des filtres
+.filters-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin-bottom: 13px;
+  padding: 15px;
+  background-color: white;
+  border-radius: $border-radius;
+  box-shadow: $shadow-sm;
+  
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    
+    label {
+      font-size: 14px;
+      font-weight: 600;
+      color: $text-medium;
+    }
+  }
+  
+  .search-input {
+    position: relative;
+    
+    input {
+      padding-left: 36px; // Plus d'espace pour l'icône
+      width: 100%;
+      height: 38px; // Hauteur fixe pour l'uniformité
+    }
+    
+    &::before {
+      content: "\f52a"; // Icône loupe Bootstrap
+      font-family: "bootstrap-icons";
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: $text-light;
+      font-size: 16px;
+    }
+  }
+  
+  .filter-actions {
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    
+    @media (max-width: 768px) {
+      justify-content: flex-start; // Aligne à gauche sur petits écrans
+    }
+  }
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr; // Une colonne sur mobile
+    padding: 16px;
+  }
+}
+
+// Style des inputs
+input[type="text"],
+input[type="email"],
+input[type="password"],
+select {
+  padding: 10px 12px;
+  border: 1px solid $border-color;
+  border-radius: $border-radius;
+  width: 100%;
+  font-size: 14px;
+  transition: $transition;
+  height: 40px; // Hauteur uniforme pour tous les contrôles de formulaire
+  
+  &:focus {
+    outline: none;
+    border-color: $primary-color;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+  }
+}
+
+// Style des select
+.select-wrapper {
+  position: relative;
+  
+  select {
+    appearance: none;
+    padding-right: 30px;
+    background-color: white;
+  }
+  
+  i {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: $text-medium;
+  }
+  
+  &.compact {
+    width: 80px;
+    
+    @media (max-width: 576px) {
+      width: 60px;
+    }
+  }
+}
+
+// Boutons d'action
+.btn-outline,
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  border: 1px solid $border-color;
+  background-color: white;
+  border-radius: $border-radius;
+  color: $text-medium;
+  cursor: pointer;
+  transition: $transition;
+  height: 40px; // Hauteur uniforme
+  
+  &:hover {
+    background-color: $bg-color;
+    color: $primary-color;
+  }
+}
+
+.btn-refresh {
+  background: none;
+  border: none;
+  color: $text-medium;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 8px; // Zone de toucher plus grande
+  border-radius: 4px;
+  transition: $transition;
+  
+  &:hover {
+    color: $primary-color;
+    background-color: $primary-lighter;
+  }
+}
+
+// Section de la liste des utilisateurs
+.users-list-section {
+  background-color: white;
+  border-radius: $border-radius;
+  box-shadow: $shadow-sm;
+  overflow: hidden; // Cache tout débordement
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.users-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid $border-color;
+  
+  h3 {
+    color: $text-dark;
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 12px 16px;
+  }
+}
+
+// Tableau des utilisateurs - Avec gestion du scroll horizontal
+.user-table-container {
+  overflow-x: auto; // Permet le scroll horizontal
+  -webkit-overflow-scrolling: touch; // Défilement fluide sur iOS
+}
+
+.user-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px; // Assure une largeur minimale pour le tableau
+  
+  th, td {
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 14px;
+    border-bottom: 1px solid $border-color;
+    vertical-align: middle; // Alignement vertical centré
+  }
+  
+  th {
+    color: $text-medium;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    position: sticky; // Optionnel: entêtes fixes pendant le défilement
+    top: 0;
+    background-color: white;
+    z-index: 10;
+  }
+  
+  td {
+    color: $text-dark;
+    white-space: nowrap; // Empêche le retour à la ligne dans les cellules
+    
+    &:nth-child(2) { // Cellule nom/prénom peut être plus large
+      white-space: normal;
+      min-width: 140px;
+    }
+  }
+  
+  .name-cell {
+    font-weight: 500;
+  }
+  
+  .checkbox-cell {
+    width: 48px;
+    text-align: center;
+  }
+  
+  .actions-cell {
+    width: 100px;
+    text-align: right;
+    white-space: nowrap;
+  }
+  
+  .inactive-row {
+    background-color: rgba(241, 245, 249, 0.5);
+    
+    td {
+      color: $text-light;
+    }
+  }
+  
+  .loading-cell, .no-results {
+    text-align: center;
+    padding: 48px 0;
+    color: $text-medium;
+    
+    i {
+      font-size: 24px;
+      display: block;
+      margin-bottom: 12px;
+      opacity: 0.7;
+    }
+    
+    p {
+      margin: 0;
+    }
+  }
+  
+  .loading-spinner {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    margin-bottom: 12px;
+    border: 3px solid rgba(37, 99, 235, 0.2);
+    border-radius: 50%;
+    border-top-color: $primary-color;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  
+  // Responsive adaptations pour très petits écrans
+  @media (max-width: 400px) {
+    min-width: 600px; // Réduit la largeur minimale mais conserve le scroll horizontal
+
+    th, td {
+      padding: 8px 12px;
+      font-size: 13px;
+    }
+  }
+}
+
+// Boutons d'action dans le tableau
+.btn-action {
+  background: none;
+  border: none;
+  padding: 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: $transition;
+  color: $text-medium;
+  
+  &.edit:hover {
+    background-color: $primary-light;
+    color: $primary-color;
+  }
+  
+  &.delete:hover {
+    background-color: $danger-light;
+    color: $danger-color;
+  }
+  
+  &[disabled] {
+    opacity: 0.4;
+    cursor: not-allowed;
+    
+    &:hover {
+      background: none;
+      color: $text-medium;
+    }
+  }
+}
+
+// Badge de statut
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 500;
+  
+  &.active {
+    background-color: $success-light;
+    color: $success-color;
+  }
+  
+  &.inactive {
+    background-color: $danger-light;
+    color: $danger-color;
+  }
+}
+
+// Section de pagination
+.pagination-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-top: 1px solid $border-color;
+  margin-top: auto; // Pousse la pagination vers le bas
+  flex-wrap: wrap;
+  gap: 12px;
+  
+  .items-per-page {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: $text-medium;
+    font-size: 14px;
+    flex-wrap: nowrap;
+  }
+  
+  .pagination {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: nowrap;
+    
+    .page-number, .page-nav {
+      min-width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      border: 1px solid $border-color;
+      background-color: white;
+      color: $text-medium;
+      cursor: pointer;
+      transition: $transition;
+      font-size: 14px;
+      
+      &:hover {
+        border-color: $primary-color;
+        color: $primary-color;
+      }
+      
+      &.active {
+        background-color: $primary-color;
+        color: white;
+        border-color: $primary-color;
+      }
+      
+      &[disabled] {
+        opacity: 0.5;
+        cursor: not-allowed;
+        
+        &:hover {
+          border-color: $border-color;
+          color: $text-medium;
+        }
+      }
+    }
+    
+    .page-ellipsis {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 36px;
+      color: $text-medium;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    flex-direction: column;
+    align-items: flex-start;
+    
+    .pagination {
+      width: 100%;
+      justify-content: center;
+      overflow-x: auto;
+      padding-bottom: 4px; // Evite que le scrollbar coupe le bas des boutons
+    }
+    
+    .items-per-page {
+      width: 100%;
+      justify-content: space-between;
+    }
+  }
+}
+
+// Modal d'édition - avec gestion du scroll
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  visibility: hidden;
+  opacity: 0;
+  transition: $transition;
+  overflow-y: auto; // Permet le scroll vertical
+  padding: 20px; // Espace autour de la modale
+  
+  &.show {
+    visibility: visible;
+    opacity: 1;
+  }
+  
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(15, 23, 42, 0.5);
+  }
+  
+  .modal-content {
+    background-color: white;
+    border-radius: $border-radius;
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto; // Scroll interne si le contenu est trop grand
+    box-shadow: $shadow;
+    position: relative;
+    z-index: 1;
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    
+    .show & {
+      transform: translateY(0);
+    }
+    
+    @media (max-width: 576px) {
+      max-width: 100%; // Pleine largeur sur mobile
+      max-height: 90vh;
+      border-radius: $border-radius;
+    }
+  }
+  
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid $border-color;
+    position: sticky; // Header fixe pendant le défilement
+    top: 0;
+    background-color: white;
+    z-index: 5;
+    
+    h4 {
+      font-size: 18px;
+      font-weight: 600;
+      color: $text-dark;
+      margin: 0;
+    }
+    
+    .btn-close {
+      background: none;
+      border: none;
+      color: $text-medium;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px;
+      border-radius: 4px;
+      
+      &:hover {
+        background-color: $bg-color;
+        color: $text-dark;
+      }
+    }
+  }
+  
+  .modal-body {
+    padding: 20px;
+    flex: 1;
+    overflow-y: auto; // Scroll interne si nécessaire
+    
+    .form-group {
+      margin-bottom: 16px;
+      
+      label {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        color: $text-medium;
+        margin-bottom: 6px;
+      }
+    }
+    
+    @media (max-width: 576px) {
+      padding: 16px;
+    }
+  }
+  
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+    padding: 16px 20px;
+    border-top: 1px solid $border-color;
+    position: sticky; // Footer fixe pendant le défilement
+    bottom: 0;
+    background-color: white;
+    z-index: 5;
+    
+    @media (max-width: 576px) {
+      flex-direction: column;
+      padding: 12px 16px;
+      
+      button {
+        width: 100%;
+      }
+    }
+  }
+}
+
+// Toggle switch pour le statut
+.toggle-switch {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  
+  input[type="checkbox"] {
+    height: 0;
+    width: 0;
+    visibility: hidden;
+    position: absolute;
+  }
+  
+  label {
+    cursor: pointer;
+    width: 44px;
+    height: 24px;
+    background: $text-light;
+    display: block;
+    border-radius: 100px;
+    position: relative;
+    
+    &:after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 18px;
+      height: 18px;
+      background: white;
+      border-radius: 50%;
+      transition: 0.3s;
+    }
+  }
+  
+  input:checked + label {
+    background: $success-color;
+  }
+  
+  input:checked + label:after {
+    left: calc(100% - 3px);
+    transform: translateX(-100%);
+  }
+  
+  .toggle-label {
+    font-size: 14px;
+    color: $text-medium;
+    flex: 1;
+  }
+}
+
+// Boutons dans la modale
+.btn-cancel, .btn-save {
+  padding: 10px 16px;
+  border-radius: $border-radius;
+  font-weight: 500;
+  cursor: pointer;
+  transition: $transition;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-cancel {
+  background-color: white;
+  border: 1px solid $border-color;
+  color: $text-medium;
+  
+  &:hover {
+    background-color: $bg-color;
+  }
+}
+
+.btn-save {
+  background-color: $primary-color;
+  border: 1px solid $primary-color;
+  color: white;
+  
+  &:hover {
+    background-color: $primary-hover;
+  }
+  
+  &[disabled] {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+}
+
+// Styles pour les checkboxes
+input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid $border-color;
+  border-radius: 4px;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+  position: relative;
+  background-color: white;
+  
+  &:checked {
+    background-color: $primary-color;
+    border-color: $primary-color;
+    
+    &:after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 6px;
+      width: 5px;
+      height: 10px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+  }
+  
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+  }
+}
+
+// Media queries générales pour l'application
+@media (max-width: 480px) {
+  .pagination .page-number:not(.active) {
+    display: none;
+  }
+}
+
+// Ajustements pour assurer la compatibilité avec les appareils tactiles
+@media (hover: none) {
+  // Augmentation de la taille des zones cliquables pour écrans tactiles
+  .btn-action, .btn-close, .page-nav, .page-number {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}

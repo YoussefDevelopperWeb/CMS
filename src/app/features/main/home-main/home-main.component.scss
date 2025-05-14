@@ -1,0 +1,373 @@
+/* sidebar.component.scss - Version optimisée sans défilement */
+
+// Variables
+$sidebar-width: 250px;
+$sidebar-collapsed-width: 70px;
+$primary-color: #3b82f6;
+$primary-dark: #2563eb;
+$primary-light: #e6f0ff;
+$primary-lighter: #f7faff;
+$text-dark: #1e293b;
+$text-medium: #4a5568;
+$text-light: #64748b;
+$border-color: #e2e8f0;
+$bg-color: #f8fafc;
+$white: #ffffff;
+$danger: #ef4444;
+$danger-light: #fee2e2;
+$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+$shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+$shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.12);
+$transition-speed: 0.3s;
+$border-radius: 12px;
+$item-radius: 8px;
+
+// Reset et base
+:host {
+  display: block;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ===== Main Content ===== */
+.main-content {
+  flex: 1;
+  height: 100vh; // Utilisez toute la hauteur de la fenêtre
+  padding: 20px;
+  overflow: hidden; // Empêche le défilement
+  margin-left: $sidebar-width;
+  width: calc(100% - #{$sidebar-width});
+  transition: margin-left $transition-speed ease, width $transition-speed ease;
+  display: flex;
+  flex-direction: column; // Organisation des éléments en colonne
+  
+  .sidebar.collapsed ~ & {
+    margin-left: $sidebar-collapsed-width;
+    width: calc(100% - #{$sidebar-collapsed-width});
+  }
+  
+  &.expanded {
+    margin-left: $sidebar-collapsed-width;
+    width: calc(100% - #{$sidebar-collapsed-width});
+  }
+  
+  @media (max-width: 991px) {
+    margin-left: 0;
+    width: 100%;
+    
+    &.expanded {
+      margin-left: 0;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    padding: 15px;
+  }
+}
+
+/* ===== Header ===== */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px; // Réduit la marge pour économiser de l'espace
+  flex-shrink: 0; // Ne rétrécit pas
+  
+  h1 {
+    color: $text-dark;
+    font-size: 28px; // Légèrement réduit
+    font-weight: 600;
+    margin: 0;
+    
+    @media (max-width: 768px) {
+      font-size: 22px;
+    }
+  }
+  
+  .search-bar {
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+    background-color: $white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: $shadow;
+    cursor: pointer;
+    transition: width 0.3s ease;
+    
+    &:hover {
+      background-color: $primary-lighter;
+    }
+    
+    svg {
+      color: $text-light;
+    }
+    
+    &.expanded {
+      width: 240px;
+      justify-content: flex-start;
+      padding: 0 15px;
+      
+      input {
+        flex: 1;
+        border: none;
+        outline: none;
+        padding: 8px;
+        background: transparent;
+      }
+    }
+  }
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    
+    .search-bar {
+      align-self: flex-end;
+    }
+  }
+}
+
+/* ===== Dynamic Content Area ===== */
+.dynamic-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1; // Prend tout l'espace disponible
+  height: calc(100% - 65px); // Hauteur restante après le header
+  min-height: 0; // Important pour que flex fonctionne correctement
+}
+
+/* ===== Info Cards ===== */
+.info-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px; // Réduit l'espacement
+  margin-bottom: 15px;
+  flex-shrink: 0; // Ne rétrécit pas
+  
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  @media (max-width: 576px) {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+
+.card {
+  background-color: $white;
+  border-radius: 10px;
+  padding: 15px; // Réduit le padding
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  box-shadow: $shadow;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-3px);
+  }
+  
+  .card-icon {
+    color: $primary-color;
+    margin-bottom: 2px;
+  }
+  
+  .card-count {
+    font-size: 24px; // Légèrement réduit
+    font-weight: 700;
+    color: $text-dark;
+    margin-bottom: 2px;
+  }
+  
+  .card-label {
+    font-size: 13px;
+    color: $text-light;
+  }
+}
+
+/* ===== Dashboard Charts ===== */
+.dashboard-charts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 15px;
+  flex: 1; // Prend l'espace restant
+  min-height: 0; // Important pour que flex fonctionne correctement
+  
+  @media (max-width: 992px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Base card style used by chart and illustration cards
+%card-base {
+  background-color: $white;
+  border-radius: 12px;
+  padding: 15px; // Réduit le padding
+  box-shadow: $shadow;
+  height: 100%; // Prend toute la hauteur disponible
+  display: flex;
+  flex-direction: column;
+  
+  @media (max-width: 576px) {
+    padding: 12px;
+  }
+}
+
+.chart-card, .illustration-card {
+  @extend %card-base;
+}
+
+.chart-header {
+  margin-bottom: 10px; // Réduit l'espacement
+  flex-shrink: 0;
+  
+  h2 {
+    font-size: 16px; // Légèrement réduit
+    font-weight: 600;
+    color: $text-dark;
+    margin: 0 0 3px;
+  }
+}
+
+.chart-subheader {
+  font-size: 13px;
+  color: $text-light;
+  margin: 0;
+}
+
+.chart-content {
+  display: flex;
+  flex-wrap: wrap;
+  flex: 1; // Prend l'espace restant
+  min-height: 0; // Important pour que flex fonctionne correctement
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+}
+
+.donut-chart {
+  width: 50%;
+  min-width: 120px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+  @media (max-width: 768px) {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  
+  .donut {
+    width: 100%;
+    height: auto;
+    max-height: 100%; // Assure que le graphique ne dépasse pas
+    
+    circle {
+      transition: all 0.3s ease;
+    }
+  }
+}
+
+.chart-legend {
+  width: 50%;
+  min-width: 150px;
+  padding-left: 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  
+  @media (max-width: 768px) {
+    width: 100%;
+    padding-left: 0;
+  }
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px; // Réduit l'espacement
+  padding: 6px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+  
+  &:hover {
+    background-color: $primary-lighter;
+  }
+  
+  .legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    margin-right: 10px;
+  }
+  
+  .legend-label {
+    flex: 1;
+    font-size: 13px;
+    color: $text-medium;
+  }
+  
+  .legend-count {
+    font-weight: 600;
+    color: $text-dark;
+  }
+}
+
+.illustration-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  
+  .illustration-image {
+    max-width: 100%;
+    max-height: 100%; // Empêche l'image de dépasser
+    object-fit: contain;
+    transition: transform 0.3s ease;
+    
+    &:hover {
+      transform: scale(1.03); // Légèrement réduit l'animation
+    }
+  }
+}
+
+/* ===== Animation Effects ===== */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+/* ===== Overlay for mobile ===== */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 99;
+  
+  @media (max-width: 991px) {
+    &.active {
+      display: block;
+    }
+  }
+}

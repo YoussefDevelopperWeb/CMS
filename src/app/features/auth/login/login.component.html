@@ -1,0 +1,71 @@
+<!-- HTML -->
+<div class="login-container">
+    <!-- Partie gauche - Formulaire de connexion -->
+    <div class="login-form-container">
+      <div class="login-form-content">
+        <div class="brand">
+          <a href="/home"><img src="assets/images/image.png" alt="Logo" class="logo">
+          </a></div>
+        <div class="text-center">
+        <p class="subtitle">
+          Bienvenue sur votre espace
+          <br>de gestion de contenu multimédia !
+        </p><br>
+    </div>
+        <form *ngIf="!isLoggedIn" name="form" (ngSubmit)="f.form.valid && onSubmit()" #f="ngForm" novalidate>
+          <div class="form-group">
+            <label for="username">Nom d'utilisateur <span class="text-danger">*</span></label>
+            <div class="input-wrapper">
+              <i class="fa fa-user input-icon"></i>
+              <input type="text" class="form-control custom-input" name="username" [(ngModel)]="form.username" 
+                required #username="ngModel" placeholder="Entrez votre nom d'utilisateur" />
+            </div>
+            <div class="error-message" *ngIf="username.errors && f.submitted">
+              Le nom d'utilisateur est requis 
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="password">Mot de passe <span class="text-danger">*</span></label>
+            <div class="input-wrapper">
+              <i class="fa fa-lock input-icon"></i>
+              <input type="password" class="form-control custom-input" name="password" [(ngModel)]="form.password" 
+                required minlength="6" #password="ngModel" placeholder="Entrez votre mot de passe" />
+            </div>
+            <div class="error-message" *ngIf="password.errors && f.submitted">
+              <div *ngIf="password.errors['required']">Le mot de passe est requis</div>
+              <div *ngIf="password.errors['minlength']">Le mot de passe doit comporter au moins 6 caractères</div>
+            </div>
+          </div>
+  
+          <div class="forgot-password">
+            <a href="/reset-password">Mot de passe oublié ?</a>
+          </div>
+          
+          <div class="form-group">
+            <button class="btn-login">Se connecter</button>
+          </div>
+          
+          <div class="form-group">
+            <div class="error-message login-failed" *ngIf="f.submitted && isLoginFailed">
+              La connexion a échoué : {{ errorMessage }}
+            </div>
+          </div>
+        </form>
+  
+        <div *ngIf="!isLoggedIn" class="register-link">
+          <p>Vous n'avez pas de compte ? <a href="/register">Inscrivez-vous ici</a></p>
+          <p>Retour à <a href="/home">l'accueil ?</a></p>
+        </div>
+  
+        <div class="success-message" *ngIf="isLoggedIn">
+          Connecté en tant que {{ roles }}.
+        </div>
+      </div>
+    </div>
+    
+    <!-- Partie droite - Image -->
+    <div class="login-image-container">
+      
+    </div>
+  </div>
