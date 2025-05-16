@@ -34,14 +34,12 @@ export class LoginComponent implements OnInit {
   ) { }
   
   ngOnInit(): void {
+    console.log('LoginComponent initialized');
+    // Si l'utilisateur est déjà connecté, rediriger immédiatement vers dashboard
     if (this.tokenStorage.getToken()) {
-      this.isLoggedIn = true;
-      this.roles = this.tokenStorage.getUser().roles;
-      
-      // Redirige l'utilisateur vers le tableau de bord s'il est déjà connecté
-      setTimeout(() => {
-        this.router.navigate(['/dashboard']);
-      }, 1500);
+      console.log('User already logged in, redirecting to dashboard');
+      this.router.navigate(['/dashboard']);
+      return; // Arrêter l'exécution de ngOnInit ici
     }
     
     // Vérifie si une redirection vient d'avoir lieu (par exemple, après inscription)
@@ -55,24 +53,20 @@ export class LoginComponent implements OnInit {
   
   onSubmit(): void {
     const { username, password } = this.form;
+    console.log('Attempting login for user:', username);
     
     this.authService.login(username, password).subscribe({
       next: data => {
+        console.log('Login successful:', data);
         this.tokenStorage.saveToken(data.accessToken);
         this.tokenStorage.saveUser(data);
         
-        this.isLoginFailed = false;
-        this.isLoggedIn = true;
-        this.roles = this.tokenStorage.getUser().roles;
-        
-        this.errorMessage = '';
-        this.successMessage = 'Connexion réussie ! Vous allez être redirigé...';
-        
-        setTimeout(() => {
-          this.router.navigate(['/dashboard']);
-        }, 1500);
+        // Rediriger immédiatement sans afficher de message
+        console.log('Redirecting to dashboard');
+        this.router.navigate(['/dashboard']);
       },
       error: err => {
+        console.error('Login error:', err);
         this.errorMessage = err.error?.message || 'Identifiants incorrects. Veuillez réessayer.';
         this.isLoginFailed = true;
       }
@@ -81,16 +75,5 @@ export class LoginComponent implements OnInit {
   
   togglePasswordVisibility(): void {
     this.showPassword = !this.showPassword;
-  }
-  
-  signInWithGoogle(): void {
-    // Implémentation de la connexion avec Google
-    console.log('Tentative de connexion avec Google');
-    
-    // Pour démonstration seulement - à remplacer par l'implémentation réelle
-    alert('Redirection vers l\'authentification Google...');
-    
-    // Exemple de redirection vers une API OAuth
-    // window.location.href = 'http://localhost:8080/api/auth/google';
   }
 }

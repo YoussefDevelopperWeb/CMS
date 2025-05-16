@@ -1,8 +1,6 @@
-/* sidebar.component.scss - Version optimisée sans défilement */
+/* home-main.component.scss - Version optimisée sans défilement */
 
 // Variables
-$sidebar-width: 250px;
-$sidebar-collapsed-width: 70px;
 $primary-color: #3b82f6;
 $primary-dark: #2563eb;
 $primary-light: #e6f0ff;
@@ -13,63 +11,36 @@ $text-light: #64748b;
 $border-color: #e2e8f0;
 $bg-color: #f8fafc;
 $white: #ffffff;
-$danger: #ef4444;
-$danger-light: #fee2e2;
 $shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
 $shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-$shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.12);
 $transition-speed: 0.3s;
 $border-radius: 12px;
 $item-radius: 8px;
 
-// Reset et base
-:host {
-  display: block;
-  height: 100vh;
-  width: 100vw;
-  overflow: hidden;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
 /* ===== Main Content ===== */
 .main-content {
-  flex: 1;
-  height: 100vh; // Utilisez toute la hauteur de la fenêtre
-  padding: 20px;
-  overflow: hidden; // Empêche le défilement
-  margin-left: $sidebar-width;
-  width: calc(100% - #{$sidebar-width});
-  transition: margin-left $transition-speed ease, width $transition-speed ease;
   display: flex;
-  flex-direction: column; // Organisation des éléments en colonne
+  flex-direction: column;
+  height: 100%;
+  padding: 0;
+  overflow: hidden;
+  position: relative;
   
-  .sidebar.collapsed ~ & {
-    margin-left: $sidebar-collapsed-width;
-    width: calc(100% - #{$sidebar-collapsed-width});
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 200px;
+    background: linear-gradient(180deg, rgba(59, 130, 246, 0.05) 0%, rgba(59, 130, 246, 0) 100%);
+    z-index: 0;
+    pointer-events: none;
   }
   
-  &.expanded {
-    margin-left: $sidebar-collapsed-width;
-    width: calc(100% - #{$sidebar-collapsed-width});
-  }
-  
-  @media (max-width: 991px) {
-    margin-left: 0;
-    width: 100%;
-    
-    &.expanded {
-      margin-left: 0;
-    }
-  }
-  
-  @media (max-width: 576px) {
-    padding: 15px;
+  > * {
+    position: relative;
+    z-index: 1;
   }
 }
 
@@ -78,24 +49,24 @@ $item-radius: 8px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px; // Réduit la marge pour économiser de l'espace
-  flex-shrink: 0; // Ne rétrécit pas
+  margin-bottom: 24px;
+  flex-shrink: 0;
   
   h1 {
     color: $text-dark;
-    font-size: 28px; // Légèrement réduit
+    font-size: 28px;
     font-weight: 600;
     margin: 0;
     
     @media (max-width: 768px) {
-      font-size: 22px;
+      font-size: 24px;
     }
   }
   
   .search-bar {
     width: 40px;
     height: 40px;
-    border-radius: 20px;
+    border-radius: 50%;
     background-color: $white;
     display: flex;
     align-items: center;
@@ -114,6 +85,7 @@ $item-radius: 8px;
     
     &.expanded {
       width: 240px;
+      border-radius: 20px;
       justify-content: flex-start;
       padding: 0 15px;
       
@@ -123,6 +95,8 @@ $item-radius: 8px;
         outline: none;
         padding: 8px;
         background: transparent;
+        font-size: 14px;
+        color: $text-medium;
       }
     }
   }
@@ -130,7 +104,8 @@ $item-radius: 8px;
   @media (max-width: 768px) {
     flex-direction: column;
     align-items: flex-start;
-    gap: 10px;
+    margin-bottom: 20px;
+    gap: 12px;
     
     .search-bar {
       align-self: flex-end;
@@ -138,22 +113,34 @@ $item-radius: 8px;
   }
 }
 
-/* ===== Dynamic Content Area ===== */
-.dynamic-content {
+/* ===== Content Wrapper ===== */
+.content-wrapper {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  flex: 1; // Prend tout l'espace disponible
-  height: calc(100% - 65px); // Hauteur restante après le header
   min-height: 0; // Important pour que flex fonctionne correctement
+  overflow-y: auto;
+  
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+  }
 }
 
 /* ===== Info Cards ===== */
 .info-cards {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 15px; // Réduit l'espacement
-  margin-bottom: 15px;
-  flex-shrink: 0; // Ne rétrécit pas
+  gap: 16px;
+  margin-bottom: 24px;
   
   @media (max-width: 1200px) {
     grid-template-columns: repeat(2, 1fr);
@@ -161,14 +148,14 @@ $item-radius: 8px;
   
   @media (max-width: 576px) {
     grid-template-columns: 1fr;
-    gap: 10px;
+    gap: 12px;
   }
 }
 
 .card {
   background-color: $white;
   border-radius: 10px;
-  padding: 15px; // Réduit le padding
+  padding: 18px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -177,22 +164,23 @@ $item-radius: 8px;
   
   &:hover {
     transform: translateY(-3px);
+    box-shadow: $shadow-sm;
   }
   
   .card-icon {
     color: $primary-color;
-    margin-bottom: 2px;
+    margin-bottom: 8px;
   }
   
   .card-count {
-    font-size: 24px; // Légèrement réduit
+    font-size: 26px;
     font-weight: 700;
     color: $text-dark;
-    margin-bottom: 2px;
+    margin-bottom: 4px;
   }
   
   .card-label {
-    font-size: 13px;
+    font-size: 14px;
     color: $text-light;
   }
 }
@@ -201,9 +189,8 @@ $item-radius: 8px;
 .dashboard-charts {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 15px;
-  flex: 1; // Prend l'espace restant
-  min-height: 0; // Important pour que flex fonctionne correctement
+  gap: 24px;
+  margin-bottom: 16px;
   
   @media (max-width: 992px) {
     grid-template-columns: 1fr;
@@ -213,15 +200,17 @@ $item-radius: 8px;
 // Base card style used by chart and illustration cards
 %card-base {
   background-color: $white;
-  border-radius: 12px;
-  padding: 15px; // Réduit le padding
+  border-radius: $border-radius;
   box-shadow: $shadow;
-  height: 100%; // Prend toute la hauteur disponible
+  padding: 20px;
   display: flex;
   flex-direction: column;
+  height: 100%;
+  min-height: 300px;
   
   @media (max-width: 576px) {
-    padding: 12px;
+    padding: 16px;
+    min-height: 260px;
   }
 }
 
@@ -230,19 +219,18 @@ $item-radius: 8px;
 }
 
 .chart-header {
-  margin-bottom: 10px; // Réduit l'espacement
-  flex-shrink: 0;
+  margin-bottom: 16px;
   
   h2 {
-    font-size: 16px; // Légèrement réduit
+    font-size: 18px;
     font-weight: 600;
     color: $text-dark;
-    margin: 0 0 3px;
+    margin: 0 0 4px;
   }
 }
 
 .chart-subheader {
-  font-size: 13px;
+  font-size: 14px;
   color: $text-light;
   margin: 0;
 }
@@ -250,8 +238,7 @@ $item-radius: 8px;
 .chart-content {
   display: flex;
   flex-wrap: wrap;
-  flex: 1; // Prend l'espace restant
-  min-height: 0; // Important pour que flex fonctionne correctement
+  flex: 1;
   
   @media (max-width: 768px) {
     flex-direction: column;
@@ -260,20 +247,19 @@ $item-radius: 8px;
 
 .donut-chart {
   width: 50%;
-  min-width: 120px;
   display: flex;
   justify-content: center;
   align-items: center;
   
   @media (max-width: 768px) {
     width: 100%;
-    margin-bottom: 10px;
+    margin-bottom: 16px;
   }
   
   .donut {
     width: 100%;
+    max-width: 180px;
     height: auto;
-    max-height: 100%; // Assure que le graphique ne dépasse pas
     
     circle {
       transition: all 0.3s ease;
@@ -283,8 +269,7 @@ $item-radius: 8px;
 
 .chart-legend {
   width: 50%;
-  min-width: 150px;
-  padding-left: 15px;
+  padding-left: 16px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -298,8 +283,8 @@ $item-radius: 8px;
 .legend-item {
   display: flex;
   align-items: center;
-  margin-bottom: 8px; // Réduit l'espacement
-  padding: 6px;
+  margin-bottom: 10px;
+  padding: 8px;
   border-radius: 6px;
   transition: background-color 0.2s ease;
   
@@ -308,15 +293,15 @@ $item-radius: 8px;
   }
   
   .legend-color {
-    width: 12px;
-    height: 12px;
-    border-radius: 3px;
-    margin-right: 10px;
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    margin-right: 12px;
   }
   
   .legend-label {
     flex: 1;
-    font-size: 13px;
+    font-size: 14px;
     color: $text-medium;
   }
   
@@ -334,12 +319,129 @@ $item-radius: 8px;
   
   .illustration-image {
     max-width: 100%;
-    max-height: 100%; // Empêche l'image de dépasser
+    max-height: 100%;
     object-fit: contain;
     transition: transform 0.3s ease;
     
     &:hover {
-      transform: scale(1.03); // Légèrement réduit l'animation
+      transform: scale(1.05);
+    }
+  }
+}
+
+/* ===== Recent Activity Section ===== */
+.recent-activity {
+  margin-top: 24px;
+  
+  .activity-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    
+    h2 {
+      font-size: 18px;
+      font-weight: 600;
+      color: $text-dark;
+      margin: 0;
+    }
+    
+    .view-all {
+      color: $primary-color;
+      font-size: 14px;
+      font-weight: 500;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      
+      svg {
+        margin-left: 4px;
+        transition: transform 0.2s ease;
+      }
+      
+      &:hover {
+        color: $primary-dark;
+        
+        svg {
+          transform: translateX(3px);
+        }
+      }
+    }
+  }
+  
+  .activity-list {
+    background-color: $white;
+    border-radius: $border-radius;
+    box-shadow: $shadow;
+    overflow: hidden;
+  }
+  
+  .activity-item {
+    display: flex;
+    align-items: center;
+    padding: 14px 16px;
+    border-bottom: 1px solid $border-color;
+    transition: background-color 0.2s ease;
+    
+    &:last-child {
+      border-bottom: none;
+    }
+    
+    &:hover {
+      background-color: $primary-lighter;
+    }
+    
+    .activity-icon {
+      min-width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 12px;
+      
+      &.upload {
+        background-color: rgba(59, 130, 246, 0.1);
+        color: $primary-color;
+      }
+      
+      &.edit {
+        background-color: rgba(245, 158, 11, 0.1);
+        color: #f59e0b;
+      }
+      
+      &.delete {
+        background-color: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+      }
+      
+      &.view {
+        background-color: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+      }
+    }
+    
+    .activity-content {
+      flex: 1;
+      
+      .activity-title {
+        font-size: 14px;
+        font-weight: 500;
+        color: $text-dark;
+        margin: 0 0 2px;
+      }
+      
+      .activity-detail {
+        font-size: 13px;
+        color: $text-light;
+        margin: 0;
+      }
+    }
+    
+    .activity-time {
+      font-size: 12px;
+      color: $text-light;
+      white-space: nowrap;
     }
   }
 }
@@ -354,20 +456,68 @@ $item-radius: 8px;
   animation: fadeIn 0.3s ease forwards;
 }
 
-/* ===== Overlay for mobile ===== */
-.sidebar-overlay {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 99;
+/* ===== Responsive Utilities ===== */
+.hide-on-mobile {
+  @media (max-width: 768px) {
+    display: none !important;
+  }
+}
+
+.show-on-mobile {
+  display: none !important;
   
-  @media (max-width: 991px) {
-    &.active {
-      display: block;
+  @media (max-width: 768px) {
+    display: block !important;
+  }
+}
+
+/* ===== No Data State ===== */
+.no-data {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  text-align: center;
+  background-color: $white;
+  border-radius: $border-radius;
+  margin: 20px 0;
+  
+  svg {
+    color: $text-light;
+    margin-bottom: 16px;
+    width: 48px;
+    height: 48px;
+  }
+  
+  .no-data-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: $text-dark;
+    margin-bottom: 8px;
+  }
+  
+  .no-data-message {
+    font-size: 14px;
+    color: $text-light;
+    max-width: 300px;
+    margin: 0 auto;
+  }
+  
+  .no-data-action {
+    margin-top: 16px;
+    background-color: $primary-color;
+    color: $white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    
+    &:hover {
+      background-color: $primary-dark;
     }
   }
 }

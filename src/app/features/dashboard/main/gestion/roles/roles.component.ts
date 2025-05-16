@@ -9,8 +9,6 @@ export interface Role {
   id?: number;
   name: string;
   description?: string;
-  statut: boolean; // true pour actif, false pour inactif
-  privileges?: Privilege[];
 }
 
 export interface Privilege {
@@ -48,7 +46,6 @@ export class RolesComponent implements OnInit {
   
   // Propriétés pour les filtres
   roleFilter = 'all';
-  statutFilter = 'all'; // Correction de statusFilter à statutFilter
   
   // Propriétés pour les messages et le chargement
   message = '';
@@ -59,6 +56,10 @@ export class RolesComponent implements OnInit {
   privileges: Privilege[] = [];
   filteredLibraryPrivileges: { [key: string]: Privilege[] } = {};
   filteredManagementPrivileges: { [key: string]: Privilege[] } = {};
+  
+  // Propriétés pour les états de visibilité des catégories
+  visibleCategories: { [key: string]: boolean } = {};
+  visibleSubcategories: { [key: string]: boolean } = {};
   
   categoryMap = {
     'library': 'Tous les privilèges librairie',
@@ -76,11 +77,14 @@ export class RolesComponent implements OnInit {
     this.roleForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
       description: [''],
-      statut: [true] // Initialisation avec un booléen (true) au lieu de 'active'
+      active: [true] // État actif par défaut
     });
     
     // Initialiser les privilèges
     this.initializePrivileges();
+    
+    // Initialiser les états de visibilité
+    this.initializeVisibilityStates();
   }
 
   ngOnInit(): void {
@@ -88,8 +92,34 @@ export class RolesComponent implements OnInit {
     this.loadAllPrivileges();
     this.prepareFilteredPrivileges();
   }
+  
+  initializeVisibilityStates(): void {
+    // Initialiser les états de visibilité des catégories
+    this.libraryCategories.forEach(category => {
+      this.visibleCategories[category] = category === 'web'; // 'web' est visible par défaut
+    });
+    
+    // Ajouter les catégories de gestion
+    this.visibleCategories['utilisateurs'] = false;
+    this.visibleCategories['roles'] = false;
+    
+    // Initialiser les états de visibilité des sous-catégories web
+    this.webSubcategories.forEach(subcategory => {
+      this.visibleSubcategories[`web-${subcategory}`] = subcategory === 'images'; // 'images' est visible par défaut
+    });
+  }
+  
+  // Toggle visibility of a category
+  toggleCategoryVisibility(category: string): void {
+    this.visibleCategories[category] = !this.visibleCategories[category];
+  }
+  
+  // Toggle visibility of a subcategory
+  toggleSubcategoryVisibility(subcategoryKey: string): void {
+    this.visibleSubcategories[subcategoryKey] = !this.visibleSubcategories[subcategoryKey];
+  }
 
-  // Implement getFilteredPrivileges method
+  // Get filtered privileges by subcategory and subcategory2
   getFilteredPrivileges(subcategory: string, subcategory2: string): Privilege[] {
     return this.privileges.filter(
       p => p.category === 'library' && 
@@ -221,7 +251,6 @@ export class RolesComponent implements OnInit {
     this.isLoading = true;
     this.roleService.getAllRoles().subscribe({
       next: (data: any) => {
-        console.log(data);
         this.roles = data.content || data;
         this.filteredRoles = [...this.roles];
         this.totalItems = data.totalElements || this.roles.length;
@@ -245,13 +274,6 @@ export class RolesComponent implements OnInit {
       filtered = filtered.filter(role => role.name === this.roleFilter);
     }
     
-    // Filtre par statut
-    if (this.statutFilter !== 'all') {
-      filtered = filtered.filter(role => 
-        role.statut === (this.statutFilter === 'active')
-      );
-    }
-    
     this.filteredRoles = filtered;
     this.totalItems = filtered.length;
     this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
@@ -260,7 +282,7 @@ export class RolesComponent implements OnInit {
 
   openAddModal(): void {
     this.isEditing = false;
-    this.roleForm.reset({ statut: true });
+    this.roleForm.reset({active: true}); // Reset avec l'état actif par défaut
     this.resetPrivileges();
     this.showModal = true;
   }
@@ -270,7 +292,7 @@ export class RolesComponent implements OnInit {
     this.roleForm.patchValue({
       name: role.name,
       description: role.description || '',
-      statut: role.statut
+      active: true // Par défaut, tous les rôles sont actifs
     });
     
     // Charger les privilèges du rôle sélectionné
@@ -285,13 +307,19 @@ export class RolesComponent implements OnInit {
     this.resetPrivileges();
     
     // Charger les privilèges du rôle depuis le service
-    this.privilegeService.getRolePrivileges(roleId).subscribe({
-      next: (privileges: any[]) => {
+    this.roleService.getRolePrivileges(roleId).subscribe({
+      next: (response: any) => {
         // Marquer les privilèges qui sont associés à ce rôle comme sélectionnés
-        privileges.forEach((priv: any) => {
-          const matchingPriv = this.privileges.find(p => p.id === priv.id);
-          if (matchingPriv) {
-            matchingPriv.selected = true;
+        const rolePrivileges = response.privileges || [];
+        rolePrivileges.forEach((rolePriv: any) => {
+          if (rolePriv.statut) { // Vérifier si le privilège est actif
+            const privilegeId = rolePriv.privilege?.id;
+            if (privilegeId) {
+              const matchingPriv = this.privileges.find(p => p.id === privilegeId);
+              if (matchingPriv) {
+                matchingPriv.selected = true;
+              }
+            }
           }
         });
       },
@@ -317,8 +345,8 @@ export class RolesComponent implements OnInit {
     
     const roleData: Role = {
       name: this.roleForm.value.name,
-      description: this.roleForm.value.description,
-      statut: this.roleForm.value.statut
+      description: this.roleForm.value.description
+      // L'état actif est géré séparément par l'API
     };
     
     this.isLoading = true;
@@ -359,7 +387,7 @@ export class RolesComponent implements OnInit {
       .filter(id => id !== undefined) as number[];
       
     // Appel API pour enregistrer les privilèges
-    this.privilegeService.assignPrivilegesToRole(roleId, selectedPrivilegeIds).subscribe({
+    this.roleService.assignPrivilegesToRole(roleId, selectedPrivilegeIds).subscribe({
       next: () => {
         console.log('Privilèges enregistrés avec succès');
       },
@@ -418,8 +446,6 @@ export class RolesComponent implements OnInit {
       }
     });
   }
-
-
 
   // Méthodes pour la pagination
   previousPage(): void {
@@ -487,18 +513,51 @@ export class RolesComponent implements OnInit {
     return subcategoryPrivileges.length > 0 && subcategoryPrivileges.every(p => p.selected);
   }
 
-  updateCategorySelection(category: string): void {
-    const allSelected = this.isCategorySelected(category);
-    this.toggleAllPrivileges(category, !allSelected);
+  // FIX: Corrected method signatures to handle Event objects correctly
+  updateCategorySelection(category: string, subcategory: string, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    
+    const allSelected = this.isSubcategorySelected(category, subcategory);
+    this.toggleCategoryPrivileges(category, subcategory, !allSelected);
   }
 
-  updateSubcategorySelection(category: string, subcategory: string, subcategory2?: string): void {
-    if (subcategory2) {
+  updateSubcategorySelection(category: string, subcategory: string, subcategory2?: string | Event, event?: Event): void {
+    // Handle case when subcategory2 is actually an Event (from the template)
+    if (subcategory2 instanceof Event) {
+      event = subcategory2;
+      subcategory2 = undefined;
+    }
+    
+    if (event) {
+      event.stopPropagation();
+    }
+    
+    if (typeof subcategory2 === 'string') {
       const allSelected = this.isSubcategorySelected(category, subcategory, subcategory2);
       this.toggleSubcategoryPrivileges(category, subcategory, subcategory2, !allSelected);
     } else {
       const allSelected = this.isSubcategorySelected(category, subcategory);
       this.toggleCategoryPrivileges(category, subcategory, !allSelected);
+    }
+  }
+
+  // Méthode pour obtenir les noms d'affichage des rôles
+  getRoleDisplayName(role: string): string {
+    if (!role) return 'Utilisateur';
+    
+    switch (role) {
+      case 'ROLE_SUPER':
+        return 'Administrateur principal';
+      case 'ROLE_ADMIN':
+        return 'Administrateur secondaire';
+      case 'ROLE_ARCH':
+        return 'Architecte';
+      case 'ROLE_RESPO':
+        return 'Responsable de contenu';
+      default:
+        return 'Utilisateur';
     }
   }
 }

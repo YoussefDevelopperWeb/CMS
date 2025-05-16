@@ -1,17 +1,23 @@
-<!-- dashboard.component.html -->
 <div class="dashboard-container">
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Chargement en cours...</p>
+  </div>
 
+  <!-- Sidebar -->
   <div class="sidebar" [class.collapsed]="isCollapsed" [class.mobile-open]="isMobileOpen">
+    <!-- Sidebar Header -->
     <div class="sidebar-header">
       <div class="logo">
-        <a href="/home">
+        <a [routerLink]="['/dashboard']">
           <img [src]="logoUrl" alt="Logo" class="logo-img" *ngIf="!isCollapsed">
           <img [src]="logoIconUrl" alt="Logo" class="logo-icon" *ngIf="isCollapsed">
         </a>
       </div>
-      <!-- <button class="collapse-btn" (click)="toggleCollapse()">
+      <button class="collapse-btn" (click)="toggleCollapse($event)" title="Réduire/Agrandir">
         <i class="bi" [ngClass]="isCollapsed ? 'bi-chevron-right' : 'bi-chevron-left'"></i>
-      </button> -->
+      </button>
     </div>
 
     <!-- User Profile - Visible at the top on mobile -->
@@ -20,8 +26,8 @@
         <span>{{getUserInitials()}}</span>
       </div>
       <div class="user-info" *ngIf="!isCollapsed">
-        <div class="user-name">{{username}}</div>
-        <div class="user-role">{{userRole}}</div>
+        <div class="user-name">{{username || 'Utilisateur'}}</div>
+        <div class="user-role">{{userRole || 'Invité'}}</div>
       </div>
     </div>
 
@@ -29,72 +35,74 @@
     <div class="nav-wrapper">
       <nav class="nav-menu">
         <!-- Dashboard -->
-        <div class="menu-item" [class.active]="selectedMenu === 'Accueil'" (click)="selectMenuItem('Accueil')">
+        <div class="menu-item" [class.active]="isActiveRoute('/dashboard')" (click)="navigateTo('/dashboard', $event)">
           <div class="menu-icon">
             <i class="bi bi-house-fill"></i>
           </div>
           <span class="menu-text" *ngIf="!isCollapsed">Accueil</span>
           <div class="tooltip" *ngIf="isCollapsed">
-            <span class="tooltiptext">Accueil</span>
+          <span class="menu-text" *ngIf="!isCollapsed">Accueil</span>
+            
           </div>
         </div>
 
         <!-- Librairie section -->
         <div class="menu-section">
-          <div class="menu-header" [class.active]="selectedMenu === 'Librairie'" (click)="selectMenuItem('Librairie')">
+          <div class="menu-header" [class.active]="isLibrairieActive()" (click)="toggleMenu('Librairie', $event)">
             <div class="menu-icon">
               <i class="bi bi-book-fill"></i>
             </div>
             <span class="menu-text" *ngIf="!isCollapsed">Librairie</span>
             <div class="menu-arrow" *ngIf="!isCollapsed">
-              <i class="bi" [ngClass]="selectedMenu === 'Librairie' ? 'bi-chevron-down' : 'bi-chevron-right'"></i>
+              <i class="bi" [ngClass]="isMenuExpanded('Librairie') ? 'bi-chevron-down' : 'bi-chevron-right'"></i>
             </div>
             <div class="tooltip" *ngIf="isCollapsed">
               <span class="tooltiptext">Librairie</span>
             </div>
           </div>
 
-          <div class="submenu" [class.show]="selectedMenu === 'Librairie'" [class.collapsed]="isCollapsed">
-            <div class="submenu-item" [class.active]="selectedLibraryItem === 'Web'" (click)="selectLibraryItem('Web')">
+          <div class="submenu" [class.show]="isMenuExpanded('Librairie')" [class.collapsed]="isCollapsed">
+            <div class="submenu-item" [class.active]="isWebActive()" (click)="toggleSubmenu('Web', $event)">
               <div class="submenu-icon">
                 <i class="bi bi-laptop"></i>
               </div>
               <span class="submenu-text" *ngIf="!isCollapsed">Web</span>
               <div class="submenu-arrow" *ngIf="!isCollapsed">
-                <i class="bi"
-                  [ngClass]="selectedLibraryItem === 'Web' && selectedWebItem ? 'bi-chevron-down' : 'bi-chevron-right'"></i>
+                <i class="bi" [ngClass]="isSubmenuExpanded('Web') ? 'bi-chevron-down' : 'bi-chevron-right'"></i>
               </div>
               <div class="tooltip" *ngIf="isCollapsed">
                 <span class="tooltiptext">Web</span>
               </div>
             </div>
 
-            <!-- Web submenu - montré seulement si selectedWebItem a une valeur -->
-            <div class="web-submenu" [class.show]="selectedLibraryItem === 'Web' && selectedWebItem"
-              [class.collapsed]="isCollapsed">
+            <!-- Web submenu -->
+            <div class="web-submenu" [class.show]="isSubmenuExpanded('Web')" [class.collapsed]="isCollapsed">
               <div class="web-buttons" [class.compact]="isCollapsed">
-                <button class="web-btn" [class.active]="selectedWebItem === 'Images'" (click)="selectWebItem('Images')">
+                <button class="web-btn" [class.active]="isActiveRoute('/dashboard/librairie/web/images')" 
+                        (click)="navigateTo('/dashboard/librairie/web/images', $event)">
                   <i class="bi bi-image"></i>
                   <span *ngIf="!isCollapsed">Images</span>
                 </button>
-                <button class="web-btn" [class.active]="selectedWebItem === 'Vidéos'" (click)="selectWebItem('Vidéos')">
+                <button class="web-btn" [class.active]="isActiveRoute('/dashboard/librairie/web/videos')" 
+                        (click)="navigateTo('/dashboard/librairie/web/videos', $event)">
                   <i class="bi bi-film"></i>
                   <span *ngIf="!isCollapsed">Vidéos</span>
                 </button>
-                <button class="web-btn" [class.active]="selectedWebItem === 'Pictos'" (click)="selectWebItem('Pictos')">
+                <button class="web-btn" [class.active]="isActiveRoute('/dashboard/librairie/web/pictos')" 
+                        (click)="navigateTo('/dashboard/librairie/web/pictos', $event)">
                   <i class="bi bi-person"></i>
                   <span *ngIf="!isCollapsed">Pictos</span>
                 </button>
-                <button class="web-btn" [class.active]="selectedWebItem === 'Documents'"
-                  (click)="selectWebItem('Documents')">
+                <button class="web-btn" [class.active]="isActiveRoute('/dashboard/librairie/web/documents')" 
+                        (click)="navigateTo('/dashboard/librairie/web/documents', $event)">
                   <i class="bi bi-file-earmark-text"></i>
                   <span *ngIf="!isCollapsed">Documents</span>
                 </button>
               </div>
             </div>
 
-            <div class="submenu-item" [class.active]="selectedLibraryItem === 'Mobile'"
-              (click)="selectLibraryItem('Mobile')">
+            <div class="submenu-item" [class.active]="isActiveRoute('/dashboard/librairie/mobile')" 
+                 (click)="navigateTo('/dashboard/librairie/mobile', $event)">
               <div class="submenu-icon">
                 <i class="bi bi-phone"></i>
               </div>
@@ -104,7 +112,8 @@
               </div>
             </div>
 
-            <div class="submenu-item" [class.active]="selectedLibraryItem === 'SM'" (click)="selectLibraryItem('SM')">
+            <div class="submenu-item" [class.active]="isActiveRoute('/dashboard/librairie/sm')" 
+                 (click)="navigateTo('/dashboard/librairie/sm', $event)">
               <div class="submenu-icon">
                 <i class="bi bi-microsoft"></i>
               </div>
@@ -114,7 +123,8 @@
               </div>
             </div>
 
-            <div class="submenu-item" [class.active]="selectedLibraryItem === 'PLV'" (click)="selectLibraryItem('PLV')">
+            <div class="submenu-item" [class.active]="isActiveRoute('/dashboard/librairie/plv')" 
+                 (click)="navigateTo('/dashboard/librairie/plv', $event)">
               <div class="submenu-icon">
                 <i class="bi bi-display"></i>
               </div>
@@ -124,8 +134,8 @@
               </div>
             </div>
 
-            <div class="submenu-item" [class.active]="selectedLibraryItem === 'Campagnes'"
-              (click)="selectLibraryItem('Campagnes')">
+            <div class="submenu-item" [class.active]="isActiveRoute('/dashboard/librairie/campagnes')" 
+                 (click)="navigateTo('/dashboard/librairie/campagnes', $event)">
               <div class="submenu-icon">
                 <i class="bi bi-megaphone-fill"></i>
               </div>
@@ -139,23 +149,24 @@
 
         <!-- Gestion section - Admin ou Super Admin -->
         <div class="menu-section" *ngIf="isAdmin || isSuperAdmin">
-          <div class="menu-header" [class.active]="selectedMenu === 'Gestion'" (click)="selectMenuItem('Gestion')">
+          <div class="menu-header" [class.active]="isGestionActive()" (click)="toggleMenu('Gestion', $event)">
             <div class="menu-icon">
               <i class="bi bi-gear-fill"></i>
             </div>
             <span class="menu-text" *ngIf="!isCollapsed">Gestion</span>
             <div class="menu-arrow" *ngIf="!isCollapsed">
-              <i class="bi" [ngClass]="selectedMenu === 'Gestion' ? 'bi-chevron-down' : 'bi-chevron-right'"></i>
+              <i class="bi" [ngClass]="isMenuExpanded('Gestion') ? 'bi-chevron-down' : 'bi-chevron-right'"></i>
             </div>
             <div class="tooltip" *ngIf="isCollapsed">
               <span class="tooltiptext">Gestion</span>
             </div>
           </div>
 
-          <div class="submenu" [class.show]="selectedMenu === 'Gestion'" [class.collapsed]="isCollapsed">
+          <div class="submenu" [class.show]="isMenuExpanded('Gestion')" [class.collapsed]="isCollapsed">
             <!-- Administrateurs - disponible uniquement pour les super admins -->
-            <div class="submenu-item" *ngIf="isSuperAdmin" [class.active]="selectedLibraryItem === 'Administrateur'"
-              (click)="selectLibraryItem('Administrateur')">
+            <div class="submenu-item" *ngIf="isSuperAdmin" 
+                 [class.active]="isActiveRoute('/dashboard/gestion/administrateurs')" 
+                 (click)="navigateTo('/dashboard/gestion/administrateurs', $event)">
               <div class="submenu-icon">
                 <i class="bi bi-shield-lock-fill"></i>
               </div>
@@ -166,8 +177,8 @@
             </div>
 
             <!-- Utilisateurs - disponible pour les admins et super admins -->
-            <div class="submenu-item" [class.active]="selectedLibraryItem === 'Utilisateurs'"
-              (click)="selectLibraryItem('Utilisateurs')">
+            <div class="submenu-item" [class.active]="isActiveRoute('/dashboard/gestion/utilisateurs')" 
+                 (click)="navigateTo('/dashboard/gestion/utilisateurs', $event)">
               <div class="submenu-icon">
                 <i class="bi bi-people-fill"></i>
               </div>
@@ -177,8 +188,8 @@
               </div>
             </div>
 
-            <div class="submenu-item" [class.active]="selectedLibraryItem === 'Roles'"
-              (click)="selectLibraryItem('Roles')">
+            <div class="submenu-item" [class.active]="isActiveRoute('/dashboard/gestion/roles')" 
+                 (click)="navigateTo('/dashboard/gestion/roles', $event)">
               <div class="submenu-icon">
                 <i class="bi bi-person-badge"></i>
               </div>
@@ -193,13 +204,13 @@
     </div>
 
     <!-- User Profile - Desktop version at bottom -->
-    <div class="user-profile" (click)="openUserDashboard()" *ngIf="!isMobile()">
+    <div class="user-profile" (click)="navigateTo('/dashboard/profile', $event)" *ngIf="!isMobile()">
       <div class="user-avatar">
         <span>{{getUserInitials()}}</span>
       </div>
       <div class="user-info" *ngIf="!isCollapsed">
-        <div class="user-name">{{username}}</div>
-        <div class="user-role">{{userRole}}</div>
+        <div class="user-name">{{username || 'Utilisateur'}}</div>
+        <div class="user-role">{{userRole || 'Invité'}}</div>
       </div>
       <div class="profile-icon" *ngIf="!isCollapsed">
         <i class="bi bi-chevron-right"></i>
@@ -216,43 +227,18 @@
   </div>
 
   <!-- Mobile toggle button - outside sidebar -->
-  <button class="mobile-toggle" *ngIf="isMobile()" (click)="toggleMobileMenu()">
+  <button class="mobile-toggle" *ngIf="isMobile()" (click)="toggleMobileMenu($event)" aria-label="Menu">
     <i class="bi" [ngClass]="isMobileOpen ? 'bi-x-lg' : 'bi-list'"></i>
   </button>
 
   <!-- Overlay for mobile -->
-  <div class="sidebar-overlay" [class.active]="isMobileOpen" (click)="closeMobileMenu()"></div>
+  <div class="sidebar-overlay" [class.active]="isMobileOpen && isSmallMobile()" (click)="closeMobileMenu($event)"></div>
 
-  <!-- Partie pour le contenu dynamique du dashboard -->
-  <div class="dynamic-content">
-    <!-- Contenu d'accueil qui sera toujours affiché par défaut -->
-    <app-home-content *ngIf="showAccueil"></app-home-content>
-
-    <!-- Contenus spécifiques qui remplacent l'accueil quand sélectionnés -->
-    <app-images *ngIf="showImages"></app-images>
-
-    <!-- Remplacer par les composants réels quand ils seront disponibles -->
-    <app-videos *ngIf="showVideos"></app-videos>
-
-    <app-pictos *ngIf="showPictos"></app-pictos>
-
-    <app-documents *ngIf="showDocuments"></app-documents>
-
-    <app-campagnes *ngIf="showCampagnes"></app-campagnes>
-
-    <app-plv *ngIf="showPlv"></app-plv>
-
-    <app-mobile *ngIf="showMobile"></app-mobile>
-
-    <app-social-media *ngIf="showSocialMedia"></app-social-media>
-    
-    <!-- User Management Component -->
-    <app-users *ngIf="showUsers"></app-users>
-
-    <app-admins *ngIf="showAdmins"></app-admins>
-
-    <app-roles *ngIf="showRoles"></app-roles>
-
-    <!-- <app-profiles *ngIf="showProfiles"></app-profiles> -->
+  <!-- Partie pour le contenu dynamique du dashboard avec conteneur de défilement -->
+  <div class="dynamic-content" [class.with-sidebar]="isMobileOpen" [class.with-collapsed-sidebar]="isCollapsed && !isMobile()">
+    <!-- Conteneur de défilement pour le contenu -->
+    <div class="content-scroll-area">
+      <router-outlet></router-outlet>
+    </div>
   </div>
 </div>

@@ -1,0 +1,123 @@
+<!-- profile.component.html corrigé -->
+<div class="profile-dashboard">
+  <div class="profile-container">
+    <header class="dashboard-header">
+      <h1 class="dashboard-title">Informations générales</h1>
+      <div class="dashboard-actions">
+        <button class="dashboard-btn" (click)="toggleEditMode()" *ngIf="!isEditing">
+          <i class="bi bi-pencil"></i> Confirmer
+        </button>
+      </div>
+    </header>
+
+    <!-- Notification banners -->
+    <div class="notification success" *ngIf="showSuccessAlert">
+      <i class="bi bi-check-circle"></i>
+      <p>{{ successMessage }}</p>
+      <button class="notification-close" (click)="showSuccessAlert = false">
+        <i class="bi bi-x"></i>
+      </button>
+    </div>
+
+    <div class="notification error" *ngIf="showErrorAlert">
+      <i class="bi bi-exclamation-circle"></i>
+      <p>{{ errorMessage }}</p>
+      <button class="notification-close" (click)="showErrorAlert = false">
+        <i class="bi bi-x"></i>
+      </button>
+    </div>
+
+    <!-- Loading state -->
+    <div class="loading-container" *ngIf="isLoading">
+      <div class="loading-spinner"></div>
+      <p>Chargement de vos informations...</p>
+    </div>
+
+    <!-- Main content -->
+    <div class="profile-content" *ngIf="!isLoading">
+      <div class="profile-card">
+        <div class="profile-header">
+          <div class="profile-avatar">
+            <span>{{ currentUser?.username?.charAt(0) || 'U' }}</span>
+          </div>
+          <div class="profile-info">
+            <h2 class="profile-name">{{ currentUser?.username || 'Utilisateur' }}</h2>
+            <span class="profile-role">{{ currentUser?.role || 'Utilisateur' }}</span>
+          </div>
+        </div>
+
+        <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" class="profile-form">
+          <div class="form-section">
+            <h3 class="section-title">Informations personnelles</h3>
+            
+            <div class="form-row">
+              <!-- Nom d'utilisateur -->
+              <div class="form-group">
+                <label for="username">Nom d'utilisateur</label>
+                <div class="input-wrapper">
+                  <i class="bi bi-person"></i>
+                  <input type="text" id="username" formControlName="username" 
+                    [class.error]="usernameControl.invalid && (usernameControl.dirty || usernameControl.touched)">
+                </div>
+                <p class="error-message" 
+                  *ngIf="usernameControl.invalid && (usernameControl.dirty || usernameControl.touched)">
+                  <span *ngIf="usernameControl.errors?.['required']">Le nom d'utilisateur est requis</span>
+                  <span *ngIf="usernameControl.errors?.['minlength']">Minimum 3 caractères requis</span>
+                </p>
+              </div>
+
+              <!-- Email -->
+              <div class="form-group">
+                <label for="email">Adresse e-mail</label>
+                <div class="input-wrapper">
+                  <i class="bi bi-envelope"></i>
+                  <input type="email" id="email" formControlName="email"
+                    [class.error]="emailControl.invalid && (emailControl.dirty || emailControl.touched)">
+                </div>
+                <p class="error-message" 
+                  *ngIf="emailControl.invalid && (emailControl.dirty || emailControl.touched)">
+                  <span *ngIf="emailControl.errors?.['required']">L'email est requis</span>
+                  <span *ngIf="emailControl.errors?.['email']">Format d'email invalide</span>
+                </p>
+              </div>
+            </div>
+
+            <!-- Fonction et Rôle sur la même ligne -->
+            <div class="form-row fonction-role-row">
+              <!-- Fonction -->
+              <div class="form-group fonction-group">
+                <label for="fonction">Fonction</label>
+                <div class="input-wrapper">
+                  <i class="bi bi-briefcase"></i>
+                  <input type="text" id="fonction" formControlName="fonction"
+                    [class.error]="fonctionControl.invalid && (fonctionControl.dirty || fonctionControl.touched)">
+                </div>
+                <p class="error-message" 
+                  *ngIf="fonctionControl.invalid && (fonctionControl.dirty || fonctionControl.touched)">
+                  <span *ngIf="fonctionControl.errors?.['required']">La fonction est requise</span>
+                </p>
+              </div>
+              
+              <!-- Rôle (non modifiable) -->
+              <div class="form-group role-group" *ngIf="currentUser?.role">
+                <label for="role">Rôle</label>
+                <div class="role-display">
+                  <div class="role-badge inline">{{ currentUser?.role }}</div>
+                </div>
+              </div>
+            </div>
+          </div><!-- Fermeture de form-section -->
+
+          <div class="form-actions" *ngIf="isEditing">
+            <button type="button" class="btn-cancel" (click)="toggleEditMode()">
+              Annuler
+            </button>
+            <button type="submit" class="btn-save" [disabled]="profileForm.invalid || profileForm.pristine">
+              Enregistrer
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

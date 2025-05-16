@@ -3,13 +3,14 @@ import { TokenStorageService } from '../../../../../core/services/token-storage.
 import { UserService } from '../../../../../core/services/user.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { DashboardComponent } from '../../../dashboard.component';
 
 @Component({
   selector: 'app-users',
   templateUrl: './users.component.html',
   styleUrls: ['./users.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule]
+  imports: [CommonModule, FormsModule,DashboardComponent]
 })
 export class UsersComponent implements OnInit {
   users: any[] = [];

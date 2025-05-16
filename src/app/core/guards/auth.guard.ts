@@ -13,12 +13,15 @@ export class AuthGuard implements CanActivate {
     _route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): boolean {
-
+    console.log('AuthGuard.canActivate called');
     const token = this.tokenService.getToken();
+    console.log('Token retrieved:', token ? 'Token exists' : 'No token');
 
     if (token) {
+      console.log('User authenticated, allowing access');
       return true;
     } else {
+      console.log('User not authenticated, redirecting to login');
       this.router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
       return false;
     }

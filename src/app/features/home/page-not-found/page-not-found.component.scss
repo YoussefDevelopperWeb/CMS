@@ -1,0 +1,116 @@
+/* src/app/shared/components/page-not-found/page-not-found.component.scss */
+:host {
+  display: block;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.not-found-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  background-color: #f8fafc;
+  background-image: url('/assets/images/404-bg.svg');
+  background-size: cover;
+  background-position: center;
+}
+
+.not-found-content {
+  text-align: center;
+  padding: 40px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  max-width: 90%;
+  width: 500px;
+  
+  h1 {
+    font-size: 100px;
+    color: #3b82f6;
+    margin: 0;
+    line-height: 1;
+    font-weight: 700;
+  }
+  
+  h2 {
+    font-size: 28px;
+    color: #1e293b;
+    margin: 10px 0 20px;
+  }
+  
+  p {
+    font-size: 16px;
+    color: #64748b;
+    margin-bottom: 30px;
+  }
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  
+  button {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    
+    i {
+      font-size: 18px;
+    }
+    
+    &:hover {
+      transform: translateY(-2px);
+    }
+    
+    &:active {
+      transform: translateY(0);
+    }
+  }
+  
+  .btn-back {
+    background-color: #e2e8f0;
+    color: #1e293b;
+    
+    &:hover {
+      background-color: #cbd5e1;
+    }
+  }
+  
+  .btn-home {
+    background-color: #3b82f6;
+    color: white;
+    
+    &:hover {
+      background-color: #2563eb;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .not-found-content {
+    padding: 30px;
+    
+    h1 {
+      font-size: 80px;
+    }
+    
+    h2 {
+      font-size: 24px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .action-buttons {
+    flex-direction: column;
+  }
+}

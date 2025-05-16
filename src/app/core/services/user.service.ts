@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { catchError, Observable, throwError } from 'rxjs';
+import { catchError, Observable, of, throwError,map  } from 'rxjs';
 import { TokenStorageService } from './token-storage.service';
 
 const API_URL = 'http://localhost:8080/api/';
@@ -16,6 +16,80 @@ export class UserService {
     private http: HttpClient,
     private tokenStorageService: TokenStorageService
   ) { }
+
+
+
+getUserDashboard(): Observable<any> {
+    console.log('user')
+
+    return this.http.get(`${API_URL}user/profile`, {
+      headers: new HttpHeaders({
+        'Authorization': 'Bearer ' + this.tokenStorageService.getToken()
+      })
+    }).pipe(
+      map(user => {
+    console.log(user)
+
+        // Traiter le rôle principal de l'utilisateur
+        if (user && (user as any).roles && (user as any).roles.length > 0) {
+          // Extraire le rôle principal et le formater pour l'affichage
+          let roleName = '';
+          const userRoles = (user as any).roles;
+          
+          if (userRoles.length > 0) {
+            // Vérifier si le rôle est un objet ou une chaîne de caractères
+            if (typeof userRoles[0] === 'string') {
+              roleName = userRoles[0].replace('ROLE_', '');
+            } else if (userRoles[0].name) {
+              roleName = userRoles[0].name.replace('ROLE_', '');
+            }
+            
+            // Ajouter le rôle principal formaté à l'objet utilisateur
+            (user as any).mainRole = roleName;
+          }
+        }
+        return user;
+      }),
+      catchError(error => {
+        console.error('Detailed error:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+getPrimaryRole(user: any): string {
+    if (!user || !user.roles || user.roles.length === 0) {
+      return 'Utilisateur';
+    }
+    
+    // Définir l'ordre de priorité des rôles
+    const rolePriority = ['ROLE_SUPER', 'ROLE_ADMIN', 'ROLE_ARCH', 'ROLE_RESPO', 'ROLE_USER'];
+    
+    // Si le rôle est déjà défini dans mainRole, l'utiliser
+    if (user.mainRole) {
+      return user.mainRole;
+    }
+    
+    // Sinon, déterminer le rôle principal en fonction des priorités
+    let primaryRole = 'Utilisateur';
+    let highestPriority = Number.MAX_VALUE;
+    
+    // Parcourir les rôles de l'utilisateur
+    for (const role of user.roles) {
+      const roleName = typeof role === 'string' ? role : (role.name || '');
+      const priorityIndex = rolePriority.indexOf(roleName);
+      
+      if (priorityIndex !== -1 && priorityIndex < highestPriority) {
+        highestPriority = priorityIndex;
+        primaryRole = roleName.replace('ROLE_', '');
+      }
+    }
+    
+    return primaryRole;
+  }
+
+
+
+
 
   /**
    * Met à jour uniquement le statut d'un utilisateur
@@ -162,23 +236,16 @@ export class UserService {
     );
   }
 
-  /**
+  /**____________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
    * Récupère les données du tableau de bord utilisateur
    */
-  getUserDashboard(): Observable<any> {
-    return this.http.get(`${API_URL}user/dashboard`, {
-      headers: new HttpHeaders({
-        'Authorization': 'Bearer ' + this.tokenStorageService.getToken()
-      })
-    }).pipe(
-      catchError(error => {
-        console.error('Detailed error:', error);
-        return throwError(() => error);
-      })
-    );
-  }
 
-  /**
+
+
+
+
+
+  /**____________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
    * Récupère tous les utilisateurs
    */
   getAllUsers(): Observable<any> {
@@ -251,59 +318,15 @@ export class UserService {
     });
   }
 
-  /**
-   * Met à jour le tableau de bord utilisateur
-   * @param userDetails Détails de l'utilisateur
-   * @returns Observable contenant la réponse
-   */
-  updateUserDashboard(userDetails: any): Observable<any> {
-    return this.http.put(API_URL + 'user/dashboard', userDetails, {
-      headers: new HttpHeaders({
-        'Authorization': 'Bearer ' + this.tokenStorageService.getToken()
+  checkUserPrivilege(category: string, souscategory: string | null): Observable<boolean> {
+    return this.http.post<boolean>(API_URL + 'check-privilege', {
+      category,
+      souscategory
+    }).pipe(
+      catchError(error => {
+        console.error('Error checking privilege:', error);
+        return of(false);
       })
-    });
-  }
-
-  /**
-   * Récupère le contenu public
-   */
-  getPublicContent(): Observable<any> {
-    return this.http.get(API_URL + 'test/all', { responseType: 'text' });
-  }
-
-  /**
-   * Récupère le tableau de bord utilisateur
-   */
-  getUserBoard(): Observable<any> {
-    return this.http.get(API_URL + 'test/user', {
-      responseType: 'text',
-      headers: new HttpHeaders({
-        'Authorization': 'Bearer ' + this.tokenStorageService.getToken()
-      })
-    });
-  }
-
-  /**
-   * Récupère le tableau de bord administrateur
-   */
-  getAdminBoard(): Observable<any> {
-    return this.http.get(API_URL + 'test/admin', {
-      responseType: 'text',
-      headers: new HttpHeaders({
-        'Authorization': 'Bearer ' + this.tokenStorageService.getToken()
-      })
-    });
-  }
-
-  /**
-   * Récupère le tableau de bord super administrateur
-   */
-  getSuperAdminBoard(): Observable<any> {
-    return this.http.get(API_URL + 'test/super', {
-      responseType: 'text',
-      headers: new HttpHeaders({
-        'Authorization': 'Bearer ' + this.tokenStorageService.getToken()
-      })
-    });
+    );
   }
 }

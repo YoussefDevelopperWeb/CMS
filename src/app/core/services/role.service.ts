@@ -10,7 +10,6 @@ export interface Role {
   id?: number;
   name: string;
   description?: string;
-  statut: boolean; // Uniformiser en utilisant seulement statut de type boolean
 }
 
 @Injectable({
@@ -45,6 +44,20 @@ export class RoleService {
     }).pipe(
       catchError(error => {
         console.error(`Error getting role with ID ${id}:`, error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  // Récupérer le nom d'affichage d'un rôle
+  getRoleDisplayName(id: number): Observable<any> {
+    return this.http.get(`${API_URL}roles/${id}/display-name`, {
+      headers: new HttpHeaders({
+        'Authorization': 'Bearer ' + this.tokenStorageService.getToken()
+      })
+    }).pipe(
+      catchError(error => {
+        console.error(`Error getting display name for role with ID ${id}:`, error);
         return throwError(() => error);
       })
     );
@@ -92,19 +105,37 @@ export class RoleService {
     );
   }
 
-
-
-  // Filtrer les rôles par nom ou statut
-  filterRoles(filterParams: any): Observable<any> {
-    return this.http.post<any>(`${API_URL}roles/filter`, filterParams, {
+  // Récupérer les privilèges d'un rôle
+  getRolePrivileges(id: number): Observable<any> {
+    return this.http.get(`${API_URL}roles/${id}/privileges`, {
       headers: new HttpHeaders({
         'Authorization': 'Bearer ' + this.tokenStorageService.getToken()
       })
     }).pipe(
       catchError(error => {
-        console.error('Error filtering roles:', error);
+        console.error(`Error getting privileges for role with ID ${id}:`, error);
         return throwError(() => error);
       })
     );
   }
+
+  // Assigner des privilèges à un rôle
+assignPrivilegesToRole(roleId: number, privilegeIds: number[]): Observable<any> {
+  const privilegeData = {
+    roleId: roleId,
+    privilegeIds: privilegeIds
+  };
+  console.log(privilegeData)
+  return this.http.post(`${API_URL}privileges/roles/${roleId}/batch`, privilegeData, {
+    headers: new HttpHeaders({
+      'Authorization': 'Bearer ' + this.tokenStorageService.getToken(),
+      'Content-Type': 'application/json'
+    })
+  }).pipe(
+    catchError(error => {
+      console.error(`Error assigning privileges to role with ID ${roleId}:`, error);
+      return throwError(() => error);
+    })
+  );
+}
 }
