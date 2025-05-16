@@ -17,7 +17,122 @@ export class UserService {
     private tokenStorageService: TokenStorageService
   ) { }
 
-  // Méthode pour récupérer uniquement les admins - pour super admin uniquement
+  /**
+   * Met à jour uniquement le statut d'un utilisateur
+   * @param userId ID de l'utilisateur
+   * @param userData Données avec uniquement l'état enabled
+   * @returns Observable contenant la réponse
+   */
+  updateUserStatus(userId: number, userData: any): Observable<any> {
+    return this.http.patch(`${API_URL}user/users/${userId}/status`, userData, {
+      headers: new HttpHeaders({
+        'Authorization': 'Bearer ' + this.tokenStorageService.getToken()
+      })
+    }).pipe(
+      catchError(error => {
+        console.error('Error updating user status:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Filtre les administrateurs avec pagination côté serveur
+   * @param filterParams Paramètres de filtrage
+   * @returns Observable contenant les administrateurs paginés
+   */
+  filterAdmins(filterParams: any): Observable<any> {
+    // Création du DTO dans le format attendu par le backend
+    const filterDTO = {
+      searchTerm: filterParams.searchTerm || '',
+      
+      // Déterminer quels modes de filtrage sont actifs
+      usernameMode: filterParams.searchTerm ? 'active' : '',
+      emailMode: filterParams.email ? 'active' : '',
+      fonctionMode: filterParams.fonction ? 'active' : '',
+      
+      // Copier les autres filtres tels quels
+      roleFilter: 'admins', // Toujours filtrer les admins
+      statusFilter: filterParams.statusFilter || 'all',
+
+      email: filterParams.email || '',
+      fonction: filterParams.fonction || '',
+
+      // Pagination avec itemsPerPage paramétrable
+      page: filterParams.page || 1,
+      itemsPerPage: filterParams.itemsPerPage || 10
+    };
+    
+    return this.http.post<any>(`${API_URL}user/filter-admins`, filterDTO, {
+      headers: new HttpHeaders({
+        'Authorization': 'Bearer ' + this.tokenStorageService.getToken()
+      })
+    }).pipe(
+      catchError(error => {
+        console.error('Error filtering admins:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Filtre les utilisateurs avec pagination côté serveur
+   * @param filterParams Paramètres de filtrage
+   * @returns Observable contenant les utilisateurs paginés
+   */
+  filterUsers(filterParams: any): Observable<any> {
+    // Création du DTO dans le format attendu par le backend
+    const filterDTO = {
+      searchTerm: filterParams.searchTerm || '',
+      
+      // Déterminer quels modes de filtrage sont actifs
+      usernameMode: filterParams.searchTerm ? 'active' : '',
+      emailMode: filterParams.email ? 'active' : '',
+      fonctionMode: filterParams.fonction ? 'active' : '',
+      
+      // Copier les autres filtres tels quels
+      roleFilter: filterParams.roleFilter || 'all',
+      statusFilter: filterParams.statusFilter || 'all',
+
+      email: filterParams.email || '',
+      fonction: filterParams.fonction || '',
+
+      // Pagination
+      page: filterParams.page || 1,
+      itemsPerPage: filterParams.itemsPerPage || 10
+    };
+    
+    return this.http.post<any>(`${API_URL}user/filter-users`, filterDTO, {
+      headers: new HttpHeaders({
+        'Authorization': 'Bearer ' + this.tokenStorageService.getToken()
+      })
+    }).pipe(
+      catchError(error => {
+        console.error('Error filtering users:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Récupère la liste des rôles disponibles
+   */
+  getRoles(): Observable<any> {
+    return this.http.get(`${API_URL}user/roles`, {
+      headers: new HttpHeaders({
+        'Authorization': 'Bearer ' + this.tokenStorageService.getToken()
+      })
+    }).pipe(
+      catchError(error => {
+        console.error('Error getting roles:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Récupère la liste des administrateurs
+   */
   getAllAdmins(): Observable<any> {
     return this.http.get(`${API_URL}user/admins`, {
       headers: new HttpHeaders({
@@ -31,9 +146,11 @@ export class UserService {
     );
   }
 
-  // Méthode pour récupérer tous les utilisateurs (rôle USER) - pour admin et super admin
+  /**
+   * Récupère la liste des utilisateurs réguliers
+   */
   getAllRegularUsers(): Observable<any> {
-    return this.http.get(`${API_URL}user/users`, {
+    return this.http.get(`${API_URL}user/regular-users`, {
       headers: new HttpHeaders({
         'Authorization': 'Bearer ' + this.tokenStorageService.getToken()
       })
@@ -45,7 +162,9 @@ export class UserService {
     );
   }
 
-  // Méthode pour récupérer les données du dashboard
+  /**
+   * Récupère les données du tableau de bord utilisateur
+   */
   getUserDashboard(): Observable<any> {
     return this.http.get(`${API_URL}user/dashboard`, {
       headers: new HttpHeaders({
@@ -59,8 +178,9 @@ export class UserService {
     );
   }
 
-
-  // Méthode pour récupérer tous les utilisateurs et admins - pour super admin uniquement
+  /**
+   * Récupère tous les utilisateurs
+   */
   getAllUsers(): Observable<any> {
     return this.http.get(`${API_URL}user/all-users`, {
       headers: new HttpHeaders({
@@ -74,9 +194,12 @@ export class UserService {
     );
   }
 
-
-
-  // Méthode pour mettre à jour un utilisateur spécifique
+  /**
+   * Met à jour un utilisateur
+   * @param userId ID de l'utilisateur
+   * @param userDetails Détails de l'utilisateur
+   * @returns Observable contenant la réponse
+   */
   updateUser(userId: number, userDetails: any): Observable<any> {
     return this.http.put(`${API_URL}user/users/${userId}`, userDetails, {
       headers: new HttpHeaders({
@@ -90,7 +213,11 @@ export class UserService {
     );
   }
 
-  // Méthode pour supprimer un utilisateur
+  /**
+   * Supprime un utilisateur
+   * @param userId ID de l'utilisateur
+   * @returns Observable contenant la réponse
+   */
   deleteUser(userId: number): Observable<any> {
     return this.http.delete(`${API_URL}user/users/${userId}`, {
       headers: new HttpHeaders({
@@ -104,7 +231,9 @@ export class UserService {
     );
   }
 
-  // Méthode pour charger les données du dashboard
+  /**
+   * Charge les données du tableau de bord utilisateur
+   */
   loadUserDashboard() {
     this.getUserDashboard().subscribe({
       next: (data) => {
@@ -122,7 +251,11 @@ export class UserService {
     });
   }
 
-  // Méthode pour mettre à jour les données du dashboard de l'utilisateur connecté
+  /**
+   * Met à jour le tableau de bord utilisateur
+   * @param userDetails Détails de l'utilisateur
+   * @returns Observable contenant la réponse
+   */
   updateUserDashboard(userDetails: any): Observable<any> {
     return this.http.put(API_URL + 'user/dashboard', userDetails, {
       headers: new HttpHeaders({
@@ -131,11 +264,16 @@ export class UserService {
     });
   }
 
-  // Services pour les contenus publics et protégés
+  /**
+   * Récupère le contenu public
+   */
   getPublicContent(): Observable<any> {
     return this.http.get(API_URL + 'test/all', { responseType: 'text' });
   }
 
+  /**
+   * Récupère le tableau de bord utilisateur
+   */
   getUserBoard(): Observable<any> {
     return this.http.get(API_URL + 'test/user', {
       responseType: 'text',
@@ -145,6 +283,9 @@ export class UserService {
     });
   }
 
+  /**
+   * Récupère le tableau de bord administrateur
+   */
   getAdminBoard(): Observable<any> {
     return this.http.get(API_URL + 'test/admin', {
       responseType: 'text',
@@ -154,7 +295,9 @@ export class UserService {
     });
   }
 
-  // Nouveau service pour le tableau de bord du super admin
+  /**
+   * Récupère le tableau de bord super administrateur
+   */
   getSuperAdminBoard(): Observable<any> {
     return this.http.get(API_URL + 'test/super', {
       responseType: 'text',
@@ -163,18 +306,4 @@ export class UserService {
       })
     });
   }
-
-  createUser(userData: any): Observable<any> {
-    return this.http.post(`${API_URL}user/users`, userData, {
-      headers: new HttpHeaders({
-        'Authorization': 'Bearer ' + this.tokenStorageService.getToken()
-      })
-    }).pipe(
-      catchError(error => {
-        console.error('Error creating user:', error);
-        return throwError(() => error);
-      })
-    );
-  }
-  
 }

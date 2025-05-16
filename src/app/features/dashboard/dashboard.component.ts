@@ -6,25 +6,27 @@ import { UserService } from '../../core/services/user.service';
 import { AuthService } from '../../core/services/auth.service';
 
 import { FormsModule } from '@angular/forms';
-import { HomeContentComponent } from '../main/home-main/home-main.component';
-import { UserManagementComponent } from '../main/gestion/user-management/user-management.component';
-import { ImagesComponent } from '../main/librairie/web/images/images.component';
-import { VideosComponent } from '../main/librairie/web/videos/videos.component';
-import { PictosComponent } from '../main/librairie/web/pictos/pictos.component';
-import { DocumentsComponent } from '../main/librairie/web/documents/documents.component';
-import { RolesComponent } from '../main/gestion/roles/roles.component';
-import { CampagnesComponent } from "../main/librairie/campagnes/campagnes.component";
-import { PlvComponent } from "../main/librairie/plv/plv.component";
-import { MobileComponent } from "../main/librairie/mobile/mobile.component";
-import { SocialMediaComponent } from "../main/librairie/social-media/social-media.component";
-import { ProfilesComponent } from '../main/profiles/profiles.component';
+
+import { UsersComponent } from './main/gestion/users/users.component';
+import { ImagesComponent } from './main/librairie/web/images/images.component';
+import { VideosComponent } from './main/librairie/web/videos/videos.component';
+import { PictosComponent } from './main/librairie/web/pictos/pictos.component';
+import { DocumentsComponent } from './main/librairie/web/documents/documents.component';
+import { RolesComponent } from './main/gestion/roles/roles.component';
+import { CampagnesComponent } from "./main/librairie/campagnes/campagnes.component";
+import { PlvComponent } from "./main/librairie/plv/plv.component";
+import { MobileComponent } from "./main/librairie/mobile/mobile.component";
+import { SocialMediaComponent } from "./main/librairie/social-media/social-media.component";
+// import { ProfilesComponent } from './main/profile/profile.component';
+import { HomeContentComponent } from './main/home-main/home-main.component';
+import { AdminsComponent } from './main/gestion/admins/admins.component';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
   standalone: true,
-  imports: [ProfilesComponent,  CommonModule, FormsModule, HomeContentComponent, ImagesComponent, VideosComponent, PictosComponent, DocumentsComponent, UserManagementComponent, RolesComponent, CampagnesComponent, PlvComponent, MobileComponent, SocialMediaComponent]
+  imports: [AdminsComponent, CommonModule, FormsModule, HomeContentComponent, ImagesComponent, VideosComponent, PictosComponent, DocumentsComponent, UsersComponent, RolesComponent, CampagnesComponent, PlvComponent, MobileComponent, SocialMediaComponent]
 })
 export class DashboardComponent implements OnInit, AfterViewInit {
   // Variables du Dashboard
@@ -58,8 +60,9 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   showCampagnes: boolean = false;
 
   showAccueil: boolean = false;
-  showUserManagement: boolean = false;
+  showUsers: boolean = false;
   showRoles: boolean = false;
+  showAdmins: boolean = false; // Ajout de la variable manquante pour AdminsComponent
 
   showProfiles: boolean = false;
 
@@ -95,7 +98,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     // Charger les données de l'utilisateur connecté
     this.currentUser = this.token.getUser();
-    
+    // console.log(this.token.getUser());
     // S'assurer que "Accueil" est sélectionné par défaut
     this.selectedMenu = 'Accueil';
     this.activeView = 'Accueil';
@@ -115,15 +118,16 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.showVideos = false;
     this.showPictos = false;
     this.showDocuments = false;
-    this.showUserManagement = false;
+    this.showUsers = false;
     this.showRoles = false;
+    this.showAdmins = false; // Réinitialiser aussi la variable showAdmins
 
     this.showCampagnes = false;
     this.showSocialMedia = false;
     this.showPlv = false;
     this.showMobile = false;
 
-     this.showProfiles = false;
+    this.showProfiles = false;
 
     this.showAccueil = false;
     // Mettre à jour l'affichage en fonction de la vue active
@@ -159,24 +163,28 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         break;
 
       case 'Utilisateurs':
-        this.showUserManagement = true;
+        this.showUsers = true;
         break;
+      case 'Administrateurs': // Correction de l'orthographe
+        this.showAdmins = true;
+        break;
+        
       case 'Roles':
         this.showRoles = true;
         break;
       
       case 'Profiles': // Ajoutez ce cas
-      this.showProfiles = true;
-      break;
+        this.showProfiles = true;
+        break;
       default:
         this.showAccueil = true;
     }
-
   }
-openUserDashboard() {
-  this.activeView = 'Profiles';
-  this.updateComponentDisplay();
-}
+  
+  openUserDashboard() {
+    this.activeView = 'Profiles';
+    this.updateComponentDisplay();
+  }
 
   selectMenuItem(menu: string) {
     // Vérifier si on clique sur le même menu principal
@@ -199,10 +207,6 @@ openUserDashboard() {
       // Traitement direct pour les éléments spécifiques
       if (menu === 'Images' || menu === 'Vidéos' || menu === 'Pictos' || menu === 'Documents' || menu === 'Utilisateurs' || menu === 'Roles') {
         this.activeView = menu; // Mettre à jour la vue active
-        
-        if (menu === 'Utilisateurs' && (this.isAdmin || this.isSuperAdmin)) {
-          this.loadAllUsers();
-        }
       } else if (menu === 'Accueil') {
         this.activeView = 'Accueil';
       }
@@ -240,28 +244,21 @@ openUserDashboard() {
       if (item === 'Web') {
         this.selectedWebItem = 'Images';
         this.activeView = 'Images';
-      } else if (item === 'Utilisateurs' || item === 'Administrateur') {
+      } else if (item === 'Utilisateurs') {
         this.activeView = 'Utilisateurs';
-        
-        if ((this.isAdmin || this.isSuperAdmin)) {
-          this.loadAllUsers();
-        }
-      }else if (item === 'Roles') {
+      } else if (item === 'Administrateur') { // Correction ici pour le menu Administrateur
+        this.activeView = 'Administrateurs';  // Qui devrait afficher la vue 'Administrateurs'
+      } else if (item === 'Roles') {
         this.activeView = 'Roles';
-
-      }else if (item === 'Mobile') {
+      } else if (item === 'Mobile') {
         this.activeView = 'Mobile';
-
-      }else if (item === 'SM') {
+      } else if (item === 'SM') {
         this.activeView = 'SM';
-
-      }else if (item === 'PLV') {
+      } else if (item === 'PLV') {
         this.activeView = 'PLV';
-
-      }else if (item === 'Campagnes') {
+      } else if (item === 'Campagnes') {
         this.activeView = 'Campagnes';
       }
-
     }
     
     this.updateComponentDisplay();
@@ -297,8 +294,8 @@ openUserDashboard() {
     this.userService.getUserDashboard().subscribe({
       next: (data) => {
         this.userDetails = data;
-        this.username = this.userDetails.username || 'Utilisateur';
-        this.userRole = this.userDetails.role || 'Utilisateur';
+        this.username = this.userDetails.username;
+        this.userRole = this.userDetails.roles[0].name;
 
         // Déterminer si l'utilisateur est admin ou super admin
         this.checkUserRole();
@@ -317,37 +314,15 @@ openUserDashboard() {
     // Vérifier les rôles de l'utilisateur
     if (this.currentUser && this.currentUser.roles) {
       this.isAdmin = this.currentUser.roles.includes('ROLE_ADMIN');
-      this.isSuperAdmin = this.currentUser.roles.includes('ROLE_SUPER_ADMIN');
+      this.isSuperAdmin = this.currentUser.roles.includes('ROLE_SUPER');
 
       // Si l'utilisateur est admin/super admin et qu'il sélectionne la gestion
       if ((this.isAdmin || this.isSuperAdmin) && this.selectedMenu === 'Gestion') {
-        if ((this.selectedLibraryItem === 'Utilisateurs' && this.isAdmin) || 
-            (this.selectedLibraryItem === 'Administrateur' && this.isSuperAdmin)) {
-          this.loadAllUsers();
+        if ((this.selectedLibraryItem === 'Utilisateurs' && this.isAdmin) || (this.selectedLibraryItem === 'Administrateur' && this.isSuperAdmin)) {
         }
       }
       this.updateComponentDisplay();
     }
-  }
-
-  loadAllUsers(): void {
-    // Cette méthode sera appelée selon le rôle de l'utilisateur
-    this.userService.getAllUsers().subscribe({
-      next: (data) => {
-        // Si super admin, on filtre pour n'avoir que les admins et utilisateurs
-        // Si admin, on ne garde que les utilisateurs standard
-        if (this.isSuperAdmin) {
-          this.usersList = data;
-        } else if (this.isAdmin) {
-          this.usersList = data.filter((user: any) => 
-            !user.roles.includes('ROLE_ADMIN') && !user.roles.includes('ROLE_SUPER_ADMIN')
-          );
-        }
-      },
-      error: (err) => {
-        console.error('Error loading users list:', err);
-      }
-    });
   }
 
   toggleEdit(): void {
@@ -373,7 +348,6 @@ openUserDashboard() {
     });
   }
   
-
   toggleMobileMenu() {
     this.isMobileOpen = !this.isMobileOpen;
   }
@@ -396,7 +370,6 @@ openUserDashboard() {
     const percentage = (count / this.totalChartCount) * 100;
     return `${percentage} ${100 - percentage}`;
   }
-
 
   // Render the donut chart with SVG
   renderDonutChart() {

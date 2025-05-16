@@ -1,0 +1,97 @@
+<svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <!-- Définition des styles et dégradés -->
+  <defs>
+    <linearGradient id="securityBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2A41E8" />
+      <stop offset="100%" stop-color="#5F73FD" />
+    </linearGradient>
+    <linearGradient id="securityRed" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF6B6B" />
+      <stop offset="100%" stop-color="#FF8E8E" />
+    </linearGradient>
+    <linearGradient id="securityGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#28a745" />
+      <stop offset="100%" stop-color="#34ce57" />
+    </linearGradient>
+    <filter id="securityShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="5"/>
+      <feOffset dx="0" dy="5" result="offsetblur"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.15"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <clipPath id="lockClip">
+      <rect x="350" y="200" width="100" height="150" rx="50" ry="50" />
+    </clipPath>
+  </defs>
+
+  <!-- Fond -->
+  <rect width="800" height="600" fill="white" />
+
+  <!-- Bouclier central -->
+  <path d="M400,150 L500,200 L500,300 Q400,400 300,300 L300,200 Z" fill="url(#securityBlue)" opacity="0.2" />
+  <path d="M400,160 L490,205 L490,295 Q400,385 310,295 L310,205 Z" fill="url(#securityBlue)" opacity="0.4" />
+  <path d="M400,170 L480,210 L480,290 Q400,370 320,290 L320,210 Z" fill="url(#securityBlue)" opacity="0.6" />
+  <path d="M400,180 L470,215 L470,285 Q400,355 330,285 L330,215 Z" fill="white" filter="url(#securityShadow)" />
+
+  <!-- Cadenas -->
+  <rect x="350" y="250" width="100" height="100" rx="10" ry="10" fill="url(#securityBlue)" />
+  <circle cx="400" cy="290" r="25" fill="white" />
+  <rect x="395" y="285" width="10" height="30" rx="2" ry="2" fill="url(#securityBlue)" />
+  <path d="M370,250 L370,230 Q370,200 400,200 Q430,200 430,230 L430,250" 
+        fill="none" stroke="url(#securityBlue)" stroke-width="15" stroke-linecap="round" />
+
+  <!-- Cercles de données sécurisées -->
+  <circle cx="400" cy="400" r="50" fill="white" filter="url(#securityShadow)" />
+  <circle cx="400" cy="400" r="40" fill="none" stroke="#E8EDF5" stroke-width="10" />
+  <path d="M400,400 L400,360" stroke="url(#securityGreen)" stroke-width="10" stroke-linecap="round">
+    <animateTransform attributeName="transform" type="rotate" from="0 400 400" to="360 400 400" dur="3s" repeatCount="indefinite" />
+  </path>
+
+  <!-- Éléments annexes -->
+  <circle cx="200" cy="250" r="60" fill="white" filter="url(#securityShadow)" />
+  <text x="200" y="240" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#333B50">Chiffrement</text>
+  <text x="200" y="260" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#333B50">Bout en bout</text>
+  <rect x="170" y="270" width="60" height="8" rx="4" ry="4" fill="#E8EDF5" />
+  <rect x="170" y="270" width="50" height="8" rx="4" ry="4" fill="url(#securityGreen)" />
+
+  <circle cx="600" cy="250" r="60" fill="white" filter="url(#securityShadow)" />
+  <text x="600" y="240" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#333B50">Conformité</text>
+  <text x="600" y="260" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#333B50">RGPD / ISO</text>
+  <rect x="570" y="270" width="60" height="8" rx="4" ry="4" fill="#E8EDF5" />
+  <rect x="570" y="270" width="60" height="8" rx="4" ry="4" fill="url(#securityBlue)" />
+
+  <circle cx="200" cy="400" r="60" fill="white" filter="url(#securityShadow)" />
+  <text x="200" y="390" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#333B50">Authentification</text>
+  <text x="200" y="410" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#333B50">Multi-facteurs</text>
+  <rect x="170" y="420" width="60" height="8" rx="4" ry="4" fill="#E8EDF5" />
+  <rect x="170" y="420" width="55" height="8" rx="4" ry="4" fill="url(#securityBlue)" />
+
+  <circle cx="600" cy="400" r="60" fill="white" filter="url(#securityShadow)" />
+  <text x="600" y="390" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#333B50">Contrôle</text>
+  <text x="600" y="410" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#333B50">d'Accès</text>
+  <rect x="570" y="420" width="60" height="8" rx="4" ry="4" fill="#E8EDF5" />
+  <rect x="570" y="420" width="58" height="8" rx="4" ry="4" fill="url(#securityGreen)" />
+
+  <!-- Lignes connectant les éléments au bouclier central -->
+  <line x1="240" y1="220" x2="350" y2="220" stroke="#E8EDF5" stroke-width="2" stroke-dasharray="5,5" />
+  <line x1="240" y1="280" x2="350" y2="280" stroke="#E8EDF5" stroke-width="2" stroke-dasharray="5,5" />
+  <line x1="560" y1="220" x2="450" y2="220" stroke="#E8EDF5" stroke-width="2" stroke-dasharray="5,5" />
+  <line x1="560" y1="280" x2="450" y2="280" stroke="#E8EDF5" stroke-width="2" stroke-dasharray="5,5" />
+  <line x1="240" y1="380" x2="350" y2="350" stroke="#E8EDF5" stroke-width="2" stroke-dasharray="5,5" />
+  <line x1="560" y1="380" x2="450" y2="350" stroke="#E8EDF5" stroke-width="2" stroke-dasharray="5,5" />
+
+  <!-- Badge de sécurité -->
+  <rect x="325" y="480" width="150" height="40" rx="20" ry="20" fill="url(#securityGreen)" />
+  <text x="400" y="505" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="white">SÉCURITÉ +</text>
+
+  <!-- Formes décoratives -->
+  <circle cx="100" cy="100" r="50" fill="url(#securityBlue)" opacity="0.1" />
+  <circle cx="700" cy="150" r="70" fill="url(#securityRed)" opacity="0.1" />
+  <circle cx="100" cy="500" r="70" fill="url(#securityGreen)" opacity="0.1" />
+  <circle cx="700" cy="500" r="50" fill="url(#securityBlue)" opacity="0.1" />
+</svg>

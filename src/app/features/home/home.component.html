@@ -1,9 +1,16 @@
+<!-- Préchargeur de page -->
+<div class="preloader" *ngIf="isLoading">
+  <div class="loader"></div>
+</div>
+
 <!-- En-tête amélioré avec nouveau design -->
+<!-- En-tête amélioré avec animation de particules et design moderne -->
 <header class="full-width-header">
+  <div class="particles-container" id="particles-js"></div>
   <div class="header-overlay"></div>
   <div class="container-fluid px-0">
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark" [ngClass]="{'scrolled': isScrolled}">
       <div class="container">
         <a class="navbar-brand" href="#">
           <img src="assets/images/image.png" alt="Logo" height="50">
@@ -18,13 +25,16 @@
               <a class="nav-link active" aria-current="page" href="#">Accueil</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Fonctionnalités</a>
+              <a class="nav-link" href="#features">Fonctionnalités</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Dashboard</a>
+              <a class="nav-link" href="#faq">FAQ</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Contact</a>
+              <a class="nav-link" href="#blog">Blog</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#contact">Contact</a>
             </li>
             <li class="nav-item ms-lg-2">
               <a href="/login" class="user-login-btn">
@@ -44,16 +54,45 @@
     <div class="header-content">
       <div class="container">
         <div class="row align-items-center">
-          <div class="col-lg-6">
-            <h1>Système de Gestion de Contenu Innovant</h1>
-            <p class="lead">Créez, gérez et partagez votre contenu facilement avec notre plateforme intuitive et performante</p>
+          <div class="col-lg-6 animate-fadeInUp" style="animation-delay: 0.1s;">
+            <h1 class="text-glitch" data-text="Système de Gestion de Contenu Innovant">Système de Gestion de Contenu Innovant</h1>
+            <p class="lead">Créez, gérez et partagez votre contenu facilement avec notre plateforme intuitive et performante.</p>
             <div class="buttons">
-              <button class="btn btn-light btn-lg">En savoir plus</button>
+              <button class="btn btn-light btn-lg pulse-btn" (click)="scrollToRegistration()">Commencer maintenant</button>
+              <button class="btn btn-outline-light btn-lg">En savoir plus</button>
+            </div>
+            
+            <!-- Ajout de badges de confiance -->
+            <div class="trust-badges">
+              <div class="badge">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-shield-check" viewBox="0 0 16 16">
+                  <path d="M5.338 1.59a61 61 0 0 0-2.837.856.48.48 0 0 0-.328.39c-.554 4.157.726 7.19 2.253 9.188a10.7 10.7 0 0 0 2.287 2.233c.346.244.652.42.893.533q.18.085.293.118a1 1 0 0 0 .808 0q.114-.033.294-.118c.24-.113.547-.29.893-.533a10.7 10.7 0 0 0 2.287-2.233c1.527-1.997 2.807-5.031 2.253-9.188a.48.48 0 0 0-.328-.39c-.651-.213-1.75-.56-2.837-.855C9.552 1.29 8.531 1.067 8 1.067c-.53 0-1.552.223-2.662.524zM5.072.56C6.157.265 7.31 0 8 0s1.843.265 2.928.56c1.11.3 2.229.655 2.887.87a1.54 1.54 0 0 1 1.044 1.262c.596 4.477-.787 7.795-2.465 9.99a11.8 11.8 0 0 1-2.517 2.453 7 7 0 0 1-1.048.625c-.28.132-.581.24-.829.24s-.548-.108-.829-.24a7 7 0 0 1-1.048-.625 11.8 11.8 0 0 1-2.517-2.453C1.928 10.487.545 7.169 1.141 2.692A1.54 1.54 0 0 1 2.185 1.43 63 63 0 0 1 5.072.56"/>
+                  <path d="M10.854 5.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 7.793l2.646-2.647a.5.5 0 0 1 .708 0"/>
+                </svg>
+                <span>Sécurité SSL</span>
+              </div>
+              <div class="badge">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-clock-history" viewBox="0 0 16 16">
+                  <path d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .589.022zm2.004.45a7 7 0 0 0-.985-.299l.219-.976c.383.086.76.2 1.126.342zm1.37.71a7 7 0 0 0-.439-.27l.493-.87a8 8 0 0 1 .979.654l-.615.789a7 7 0 0 0-.418-.302zm1.834 1.79a7 7 0 0 0-.653-.796l.724-.69c.27.285.52.59.747.91l-.818.576zm.744 1.352a7 7 0 0 0-.214-.468l.893-.45a8 8 0 0 1 .45 1.088l-.95.313a7 7 0 0 0-.179-.483m.53 2.507a7 7 0 0 0-.1-1.025l.985-.17c.067.386.106.778.116 1.17l-1 .025zm-.131 1.538c.033-.17.06-.339.081-.51l.993.123a8 8 0 0 1-.23 1.155l-.964-.267c.046-.165.086-.332.12-.501m-.952 2.379c.184-.29.346-.594.486-.908l.914.405c-.16.36-.345.706-.555 1.038l-.845-.535m-.964 1.205c.122-.122.239-.248.35-.378l.758.653a8 8 0 0 1-.401.432l-.707-.707z"/>
+                  <path d="M8 1a7 7 0 1 0 4.95 11.95l.707.707A8.001 8.001 0 1 1 8 0z"/>
+                  <path d="M7.5 3a.5.5 0 0 1 .5.5v5.21l3.248 1.856a.5.5 0 0 1-.496.868l-3.5-2A.5.5 0 0 1 7 9V3.5a.5.5 0 0 1 .5-.5"/>
+                </svg>
+                <span>24/7 Support</span>
+              </div>
+              <div class="badge">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-stars" viewBox="0 0 16 16">
+                  <path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.593 5.69l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.69A1.73 1.73 0 0 0 2.31 4.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.407 2.31zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732L9.1 2.137a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"/>
+                </svg>
+                <span>4.9/5 Étoiles</span>
+              </div>
             </div>
           </div>
-          <div class="col-lg-6 mt-5 mt-lg-0">
-            <div class="header-image-container" style="margin-left: 20%;">
-              <img src="assets/images/2.png" alt="Image principale" class="img-fluid header-image">
+          <div class="col-lg-6 mt-5 mt-lg-0 animate-fadeInUp" style="animation-delay: 0.3s;">
+            <div class="header-image-container">
+              <div class="shape-1"></div>
+              <div class="shape-2"></div>
+              <img src="../../../assets/images/hero-image.svg" alt="Image principale" class="img-fluid header-image">
+              <div class="blob-animation"></div>
             </div>
           </div>
         </div>
@@ -62,20 +101,78 @@
   </div>
 </header>
 
-<section class="features py-5">
+<!-- Section Statistiques (Nouvelle) -->
+<section class="stats-section section-padding" id="stats">
   <div class="container">
-    <h2 class="text-center">Nos fonctionnalités</h2>
-    <div class="row justify-content-center mt-5">
+    <div class="stats-container">
+      <div class="row">
+        <div class="col-md-3 col-sm-6 mb-4 mb-md-0 animate-fadeInUp" style="animation-delay: 0.1s;">
+          <div class="stat-item">
+            <div class="stat-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-people" viewBox="0 0 16 16">
+                <path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1zm-7.978-1A.261.261 0 0 1 7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002a.274.274 0 0 1-.014.002H7.022zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4m3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0M6.936 9.28a5.88 5.88 0 0 0-1.23-.247A7.35 7.35 0 0 0 5 9c-4 0-5 3-5 4 0 .667.333 1 1 1h4.216A2.238 2.238 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816M4.92 10A5.493 5.493 0 0 0 4 13H1c0-.26.164-1.03.76-1.724.545-.636 1.492-1.256 3.16-1.275ZM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0m3-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4"/>
+              </svg>
+            </div>
+            <div class="stat-number">5000+</div>
+            <div class="stat-text">Utilisateurs Actifs</div>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-4 mb-md-0 animate-fadeInUp" style="animation-delay: 0.2s;">
+          <div class="stat-item">
+            <div class="stat-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-file-earmark-text" viewBox="0 0 16 16">
+                <path d="M5.5 7a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1zM5 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5"/>
+                <path d="M9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.5zm0 1v2A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
+              </svg>
+            </div>
+            <div class="stat-number">250K+</div>
+            <div class="stat-text">Documents Gérés</div>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-4 mb-md-0 animate-fadeInUp" style="animation-delay: 0.3s;">
+          <div class="stat-item">
+            <div class="stat-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-building" viewBox="0 0 16 16">
+                <path d="M4 2.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm-9 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5z"/>
+              </svg>
+            </div>
+            <div class="stat-number">300+</div>
+            <div class="stat-text">Entreprises</div>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6 animate-fadeInUp" style="animation-delay: 0.4s;">
+          <div class="stat-item">
+            <div class="stat-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-globe" viewBox="0 0 16 16">
+                <path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m7.5-6.923c-.67.204-1.335.82-1.887 1.855A7.97 7.97 0 0 0 5.145 4H7.5zM4.09 4a9.267 9.267 0 0 1 .64-1.539 6.7 6.7 0 0 1 .597-.933A7.025 7.025 0 0 0 2.255 4zm-.582 3.5c.03-.877.138-1.718.312-2.5H1.674a6.958 6.958 0 0 0-.656 2.5zM4.847 5a12.5 12.5 0 0 0-.338 2.5H7.5V5zM8.5 5v2.5h2.99a12.495 12.495 0 0 0-.337-2.5zM4.51 8.5a12.5 12.5 0 0 0 .337 2.5H7.5V8.5zm3.99 0V11h2.653c.187-.765.306-1.608.338-2.5zM5.145 12c.138.386.295.744.47 1.068.552 1.035 1.218 1.65 1.887 1.855V12zm.182 2.472a6.696 6.696 0 0 1-.597-.933A9.268 9.268 0 0 1 4.09 12H2.255a7.024 7.024 0 0 0 3.072 2.472M3.82 11a13.652 13.652 0 0 1-.312-2.5h-2.49c.062.89.291 1.733.656 2.5zm6.853 3.472A7.024 7.024 0 0 0 13.745 12H11.91a9.27 9.27 0 0 1-.64 1.539 6.688 6.688 0 0 1-.597.933M8.5 12v2.923c.67-.204 1.335-.82 1.887-1.855.173-.324.33-.682.468-1.068zm3.68-1h2.146c.365-.767.594-1.61.656-2.5h-2.49a13.65 13.65 0 0 1-.312 2.5zm2.802-3.5a6.959 6.959 0 0 0-.656-2.5H12.18c.174.782.282 1.623.312 2.5zM11.27 2.461c.247.464.462.98.64 1.539h1.835a7.024 7.024 0 0 0-3.072-2.472c.218.284.418.598.597.933zM10.855 4a7.966 7.966 0 0 0-.468-1.068C9.835 1.897 9.17 1.282 8.5 1.077V4z"/>
+              </svg>
+            </div>
+            <div class="stat-number">20+</div>
+            <div class="stat-text">Pays Desservis</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Section des fonctionnalités modernisée -->
+<section class="features section-padding" id="features">
+  <div class="container">
+    <h2 class="section-title">Nos fonctionnalités</h2>
+    <p class="section-subtitle">Découvrez les outils puissants qui vous aideront à gérer efficacement votre contenu numérique</p>
+    
+    <div class="row justify-content-center">
       <!-- Carte de fonctionnalité 1 -->
-      <div class="col-lg-4 col-md-6 mb-4">
+      <div class="col-lg-4 col-md-6 mb-4 animate-fadeInUp" style="animation-delay: 0.1s;">
         <div class="feature-card">
           <div class="feature-card-inner">
             <div class="feature-image-container">
-              <img src="assets/images/1.png" alt="Fonctionnalité 1" class="feature-image">
+              <img src="https://source.unsplash.com/random/600x400/?editor" alt="Éditeur Intuitif" class="feature-image">
             </div>
             <div class="feature-content">
               <h3>Éditeur Intuitif</h3>
-              <p>Créez et modifiez votre contenu facilement avec notre éditeur simple mais puissant, adapté à tous les niveaux.</p>
+              <p>Créez et modifiez votre contenu facilement avec notre éditeur simple mais puissant, adapté à tous les niveaux d'expertise.</p>
               <a href="#" class="feature-btn">En savoir plus</a>
             </div>
           </div>
@@ -83,15 +180,15 @@
       </div>
       
       <!-- Carte de fonctionnalité 2 -->
-      <div class="col-lg-4 col-md-6 mb-4">
+      <div class="col-lg-4 col-md-6 mb-4 animate-fadeInUp" style="animation-delay: 0.2s;">
         <div class="feature-card">
           <div class="feature-card-inner">
             <div class="feature-image-container">
-              <img src="assets/images/2.png" alt="Fonctionnalité 2" class="feature-image">
+              <img src="https://source.unsplash.com/random/600x400/?management" alt="Gestion Avancée" class="feature-image">
             </div>
             <div class="feature-content">
               <h3>Gestion Avancée</h3>
-              <p>Organisez, catégorisez et gérez votre contenu avec des outils puissants conçus pour optimiser votre workflow.</p>
+              <p>Organisez, catégorisez et gérez votre contenu avec des outils puissants conçus pour optimiser votre workflow et améliorer la productivité.</p>
               <a href="#" class="feature-btn">En savoir plus</a>
             </div>
           </div>
@@ -99,15 +196,63 @@
       </div>
       
       <!-- Carte de fonctionnalité 3 -->
-      <div class="col-lg-4 col-md-6 mb-4">
+      <div class="col-lg-4 col-md-6 mb-4 animate-fadeInUp" style="animation-delay: 0.3s;">
         <div class="feature-card">
           <div class="feature-card-inner">
             <div class="feature-image-container">
-              <img src="assets/images/3.png" alt="Fonctionnalité 3" class="feature-image">
+              <img src="https://source.unsplash.com/random/600x400/?analytics" alt="Analyse Performante" class="feature-image">
             </div>
             <div class="feature-content">
               <h3>Analyse Performante</h3>
-              <p>Suivez les performances de votre contenu avec des analyses détaillées et des rapports personnalisés.</p>
+              <p>Suivez les performances de votre contenu avec des analyses détaillées et des rapports personnalisés pour optimiser votre stratégie.</p>
+              <a href="#" class="feature-btn">En savoir plus</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Carte de fonctionnalité 4 (Nouvelle) -->
+      <div class="col-lg-4 col-md-6 mb-4 animate-fadeInUp" style="animation-delay: 0.4s;">
+        <div class="feature-card">
+          <div class="feature-card-inner">
+            <div class="feature-image-container">
+              <img src="https://source.unsplash.com/random/600x400/?collaboration" alt="Collaboration en Temps Réel" class="feature-image">
+            </div>
+            <div class="feature-content">
+              <h3>Collaboration en Temps Réel</h3>
+              <p>Travaillez simultanément avec votre équipe sur les mêmes documents sans conflit de version, avec historique complet des modifications.</p>
+              <a href="#" class="feature-btn">En savoir plus</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Carte de fonctionnalité 5 (Nouvelle) -->
+      <div class="col-lg-4 col-md-6 mb-4 animate-fadeInUp" style="animation-delay: 0.5s;">
+        <div class="feature-card">
+          <div class="feature-card-inner">
+            <div class="feature-image-container">
+              <img src="https://source.unsplash.com/random/600x400/?automated" alt="Automatisation Intelligente" class="feature-image">
+            </div>
+            <div class="feature-content">
+              <h3>Automatisation Intelligente</h3>
+              <p>Automatisez les tâches répétitives et les workflows avec notre moteur d'automatisation facile à configurer et extrêmement puissant.</p>
+              <a href="#" class="feature-btn">En savoir plus</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Carte de fonctionnalité 6 (Nouvelle) -->
+      <div class="col-lg-4 col-md-6 mb-4 animate-fadeInUp" style="animation-delay: 0.6s;">
+        <div class="feature-card">
+          <div class="feature-card-inner">
+            <div class="feature-image-container">
+              <img src="../../../assets/images/security-image.svg" alt="Sécurité Renforcée" class="feature-image">
+            </div>
+            <div class="feature-content">
+              <h3>Sécurité Renforcée</h3>
+              <p>Protégez vos données sensibles avec notre système de sécurité multicouche, incluant chiffrement de bout en bout et authentification biométrique.</p>
               <a href="#" class="feature-btn">En savoir plus</a>
             </div>
           </div>
@@ -117,35 +262,45 @@
   </div>
 </section>
 
-<section class="testimonial py-5">
+<!-- Section de témoignages redessinée -->
+<section class="testimonial section-padding">
   <div class="container">
-    <h2 class="text-center">Ce que disent nos clients</h2>
+    <h2 class="section-title">Ce que disent nos clients</h2>
+    <p class="section-subtitle">Des milliers d'entreprises et de professionnels font confiance à notre solution</p>
+    
     <div class="row justify-content-center">
-      <div class="col-lg-8">
+      <div class="col-lg-8 animate-fadeInUp">
         <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel">
           <div class="carousel-inner">
             <div class="carousel-item active">
               <div class="testimonial-item text-center">
-                <p class="testimonial-text">"Cette plateforme a révolutionné notre façon de gérer le contenu. Simple, efficace et puissante. Je la recommande à toutes les équipes marketing."</p>
+                <p class="testimonial-text">"Cette plateforme a révolutionné notre façon de gérer le contenu. Simple, efficace et puissante. Je la recommande à toutes les équipes marketing qui cherchent à optimiser leur workflow et à améliorer leur productivité."</p>
                 <h5 class="testimonial-author">Marie Dupont</h5>
                 <p class="testimonial-position">Directrice Marketing, Tech Solutions</p>
               </div>
             </div>
             <div class="carousel-item">
               <div class="testimonial-item text-center">
-                <p class="testimonial-text">"Un outil indispensable pour notre équipe éditoriale. Nous avons augmenté notre productivité de 40% et la qualité de notre contenu s'est nettement améliorée."</p>
+                <p class="testimonial-text">"Un outil indispensable pour notre équipe éditoriale. Nous avons augmenté notre productivité de 40% et la qualité de notre contenu s'est nettement améliorée. L'interface est intuitive et la collaboration en temps réel est un vrai plus."</p>
                 <h5 class="testimonial-author">Thomas Martin</h5>
                 <p class="testimonial-position">Rédacteur en chef, Magazine Digital</p>
+              </div>
+            </div>
+            <div class="carousel-item">
+              <div class="testimonial-item text-center">
+                <p class="testimonial-text">"La sécurité était notre préoccupation principale lors du choix d'une solution de gestion de contenu. Cette plateforme a dépassé toutes nos attentes avec son système de chiffrement de bout en bout et ses contrôles d'accès granulaires."</p>
+                <h5 class="testimonial-author">Sophie Leblanc</h5>
+                <p class="testimonial-position">RSSI, Groupe Financier International</p>
               </div>
             </div>
           </div>
           <button class="carousel-control-prev" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="prev">
             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Previous</span>
+            <span class="visually-hidden">Précédent</span>
           </button>
           <button class="carousel-control-next" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="next">
             <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Next</span>
+            <span class="visually-hidden">Suivant</span>
           </button>
         </div>
       </div>
@@ -153,42 +308,365 @@
   </div>
 </section>
 
+<!-- Section FAQ (Nouvelle) -->
+<section class="faq-section section-padding" id="faq">
+  <div class="container">
+    <h2 class="section-title">Questions fréquentes</h2>
+    <p class="section-subtitle">Trouvez rapidement des réponses aux questions les plus courantes</p>
+    
+    <div class="row justify-content-center animate-fadeInUp">
+      <div class="col-lg-8">
+        <div class="accordion" id="faqAccordion">
+          <!-- Question 1 -->
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingOne">
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                Comment commencer avec la plateforme ?
+              </button>
+            </h2>
+            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
+              <div class="accordion-body">
+                Commencer est simple ! Inscrivez-vous pour un essai gratuit de 14 jours, aucune carte de crédit n'est requise. Vous aurez accès à toutes les fonctionnalités et pourrez créer votre premier projet en quelques minutes. Notre assistant de démarrage vous guidera à travers les premières étapes pour configurer votre espace de travail.
+              </div>
+            </div>
+          </div>
+          
+          <!-- Question 2 -->
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingTwo">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                Quels types de contenu puis-je gérer ?
+              </button>
+            </h2>
+            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
+              <div class="accordion-body">
+                Notre plateforme prend en charge une large gamme de formats de contenu, y compris les documents texte, les images, les vidéos, les fichiers audio, les PDFs et bien plus encore. Vous pouvez organiser votre contenu en collections, ajouter des métadonnées personnalisées et créer des workflows adaptés à vos besoins spécifiques.
+              </div>
+            </div>
+          </div>
+          
+          <!-- Question 3 -->
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingThree">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                La plateforme est-elle adaptée aux grandes équipes ?
+              </button>
+            </h2>
+            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
+              <div class="accordion-body">
+                Absolument ! Notre plateforme est conçue pour s'adapter à des équipes de toutes tailles, des freelances aux grandes entreprises. Elle offre des fonctionnalités avancées de gestion des rôles et permissions, permettant de définir précisément qui peut voir, modifier ou publier chaque élément de contenu. De plus, notre système de collaboration en temps réel permet à plusieurs utilisateurs de travailler simultanément sur le même document.
+              </div>
+            </div>
+          </div>
+          
+          <!-- Question 4 -->
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingFour">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                Comment fonctionne la tarification ?
+              </button>
+            </h2>
+            <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#faqAccordion">
+              <div class="accordion-body">
+                Nous proposons plusieurs formules d'abonnement pour répondre aux besoins de différents utilisateurs. Notre formule de base commence à 19€/mois et inclut toutes les fonctionnalités essentielles. Pour les équipes plus importantes, notre formule Pro à 49€/mois offre des fonctionnalités avancées de collaboration et d'analyse. Nous proposons également des solutions personnalisées pour les grandes entreprises. Tous les plans incluent une assistance client et des mises à jour régulières.
+              </div>
+            </div>
+          </div>
+          
+          <!-- Question 5 -->
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingFive">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                Mes données sont-elles sécurisées ?
+              </button>
+            </h2>
+            <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#faqAccordion">
+              <div class="accordion-body">
+                La sécurité est notre priorité absolue. Nous utilisons un chiffrement de bout en bout pour protéger vos données, et nos serveurs sont conformes aux normes ISO 27001 et GDPR. Nous effectuons des audits de sécurité réguliers et offrons des fonctionnalités avancées comme l'authentification à deux facteurs et les journaux d'activité détaillés. Vous restez propriétaire de toutes vos données et pouvez les exporter à tout moment.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Section Partenaires (Nouvelle) -->
+<section class="partners-section section-padding">
+  <div class="container">
+    <h2 class="section-title">Ils nous font confiance</h2>
+    <p class="section-subtitle">Des entreprises innovantes de toutes tailles utilisent notre plateforme</p>
+    
+    <div class="partners-container animate-fadeInUp">
+      <!-- Utilisez des logos génériques ou des placeholders -->
+      <div class="partner-item">
+        <img src="https://placehold.co/150x80/2A41E8/ffffff?text=Partner+1" alt="Partenaire 1">
+      </div>
+      <div class="partner-item">
+        <img src="https://placehold.co/150x80/2A41E8/ffffff?text=Partner+2" alt="Partenaire 2">
+      </div>
+      <div class="partner-item">
+        <img src="https://placehold.co/150x80/2A41E8/ffffff?text=Partner+3" alt="Partenaire 3">
+      </div>
+      <div class="partner-item">
+        <img src="https://placehold.co/150x80/2A41E8/ffffff?text=Partner+4" alt="Partenaire 4">
+      </div>
+      <div class="partner-item">
+        <img src="https://placehold.co/150x80/2A41E8/ffffff?text=Partner+5" alt="Partenaire 5">
+      </div>
+      <div class="partner-item">
+        <img src="https://placehold.co/150x80/2A41E8/ffffff?text=Partner+6" alt="Partenaire 6">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Section Blog (Nouvelle) -->
+<section class="blog-section section-padding" id="blog">
+  <div class="container">
+    <h2 class="section-title">Actualités & Ressources</h2>
+    <p class="section-subtitle">Restez informé des dernières tendances et meilleures pratiques</p>
+    
+    <div class="row blog-container">
+      <!-- Article de blog 1 -->
+      <div class="col-lg-4 col-md-6 mb-4 animate-fadeInUp" style="animation-delay: 0.1s;">
+        <div class="blog-card">
+          <div class="blog-image">
+            <img src="https://source.unsplash.com/random/600x400/?content-marketing" alt="Article de blog 1">
+            <div class="blog-date">12 Mai 2025</div>
+            <div class="blog-category">Marketing</div>
+          </div>
+          <div class="blog-content">
+            <h3><a href="#">Comment optimiser votre stratégie de contenu en 2025</a></h3>
+            <p>Découvrez les dernières tendances et techniques pour améliorer l'efficacité de votre stratégie de contenu et augmenter votre ROI.</p>
+            <div class="blog-footer">
+              <div class="blog-author">
+                <img src="https://i.pravatar.cc/300?img=1" alt="Auteur">
+                <span>Laura Martin</span>
+              </div>
+              <a href="#" class="blog-read-more">Lire plus →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Article de blog 2 -->
+      <div class="col-lg-4 col-md-6 mb-4 animate-fadeInUp" style="animation-delay: 0.2s;">
+        <div class="blog-card">
+          <div class="blog-image">
+            <img src="https://source.unsplash.com/random/600x400/?collaboration" alt="Article de blog 2">
+            <div class="blog-date">5 Mai 2025</div>
+            <div class="blog-category">Productivité</div>
+          </div>
+          <div class="blog-content">
+            <h3><a href="#">5 méthodes pour améliorer la collaboration d'équipe à distance</a></h3>
+            <p>Apprenez comment maintenir une collaboration efficace et productive avec votre équipe, même lorsque vous travaillez à distance.</p>
+            <div class="blog-footer">
+              <div class="blog-author">
+                <img src="https://i.pravatar.cc/300?img=2" alt="Auteur">
+                <span>Thomas Dubois</span>
+              </div>
+              <a href="#" class="blog-read-more">Lire plus →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Article de blog 3 -->
+      <div class="col-lg-4 col-md-6 mb-4 animate-fadeInUp" style="animation-delay: 0.3s;">
+        <div class="blog-card">
+          <div class="blog-image">
+            <img src="https://source.unsplash.com/random/600x400/?security" alt="Article de blog 3">
+            <div class="blog-date">28 Avr 2025</div>
+            <div class="blog-category">Sécurité</div>
+          </div>
+          <div class="blog-content">
+            <h3><a href="#">Protégez vos données d'entreprise : guide essentiel</a></h3>
+            <p>Un guide complet sur les meilleures pratiques pour sécuriser vos documents sensibles et protéger votre entreprise contre les cybermenaces.</p>
+            <div class="blog-footer">
+              <div class="blog-author">
+                <img src="https://i.pravatar.cc/300?img=3" alt="Auteur">
+                <span>Marc Leroy</span>
+              </div>
+              <a href="#" class="blog-read-more">Lire plus →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="view-all-btn">
+      <a href="#" class="btn btn-primary">Voir tous les articles</a>
+    </div>
+  </div>
+</section>
+
+<!-- Section d'appel à l'action (CTA) (Nouvelle) -->
+<section class="cta-section section-padding">
+  <div class="container">
+    <div class="cta-content animate-fadeInUp">
+      <h2>Prêt à révolutionner votre gestion de contenu ?</h2>
+      <p>Rejoignez des milliers d'entreprises qui ont déjà transformé leur façon de créer, gérer et partager leur contenu. Commencez gratuitement, aucune carte de crédit requise.</p>
+      <div class="cta-buttons">
+        <a href="#" class="btn btn-light btn-lg">Commencer gratuitement</a>
+        <a href="#" class="btn btn-outline-light btn-lg">Demander une démo</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Section de localisation améliorée -->
+<div class="location-section section-padding" id="contact">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Notre localisation</h2>
+      <p class="section-subtitle">Retrouvez-nous au Technopark de Casablanca</p>
+    </div>
+    
+    <div class="location-container animate-fadeInUp">
+      <!-- Carte Google Maps -->
+      <div class="map-container">
+        <iframe 
+          [src]="locationInfo.mapUrl | safeResourceUrl" 
+          width="100%" 
+          height="450" 
+          style="border:0;" 
+          allowfullscreen="" 
+          loading="lazy" 
+          referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+      </div>
+      
+      <!-- Informations de contact -->
+      <div class="contact-info">
+        <div class="info-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-geo-alt" viewBox="0 0 16 16">
+            <path d="M12.166 8.94c-.524 1.062-1.234 2.12-1.96 3.07A32 32 0 0 1 8 14.58a32 32 0 0 1-2.206-2.57c-.726-.95-1.436-2.008-1.96-3.07C3.304 7.867 3 6.862 3 6a5 5 0 0 1 10 0c0 .862-.305 1.867-.834 2.94M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10"/>
+            <path d="M8 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4m0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+          </svg>
+          <div>
+            <h3>Adresse</h3>
+            <p>{{ locationInfo.address }}</p>
+          </div>
+        </div>
+        
+        <div class="info-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-telephone" viewBox="0 0 16 16">
+            <path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.6 17.6 0 0 0 4.168 6.608 17.6 17.6 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.68.68 0 0 0-.58-.122l-2.19.547a1.75 1.75 0 0 1-1.657-.459L5.482 8.062a1.75 1.75 0 0 1-.46-1.657l.548-2.19a.68.68 0 0 0-.122-.58zM1.884.511a1.745 1.745 0 0 1 2.612.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.68.68 0 0 0 .178.643l2.457 2.457a.68.68 0 0 0 .644.178l2.189-.547a1.75 1.75 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.6 18.6 0 0 1-7.01-4.42 18.6 18.6 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877z"/>
+          </svg>
+          <div>
+            <h3>Téléphone</h3>
+            <p>{{ locationInfo.phone }}</p>
+          </div>
+        </div>
+        
+        <div class="info-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-envelope" viewBox="0 0 16 16">
+            <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1zm13 2.383-4.708 2.825L15 11.105zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741M1 11.105l4.708-2.897L1 5.383z"/>
+          </svg>
+          <div>
+            <h3>Email</h3>
+            <p>{{ locationInfo.email }}</p>
+          </div>
+        </div>
+        
+        <div class="info-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-clock" viewBox="0 0 16 16">
+            <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z"/>
+            <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0"/>
+          </svg>
+          <div>
+            <h3>Heures d'ouverture</h3>
+            <p>Lundi - Vendredi: {{ locationInfo.hours.weekdays }}</p>
+            <p>Samedi: {{ locationInfo.hours.weekend }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Pied de page amélioré -->
 <footer class="bg-dark text-white py-4">
   <div class="container">
     <div class="row">
-      <div class="col-md-4">
-        <img src="assets/images/image.png" alt="Logo" height="40" class="mb-3">
-        <p>Notre plateforme de gestion de contenu vous aide à créer, gérer et partager votre contenu efficacement.</p>
+      <div class="col-lg-4 col-md-6 mb-4 mb-md-0">
+        <img src="assets/images/logo-white.png" alt="Logo" height="40" class="mb-3">
+        <p>Notre plateforme de gestion de contenu vous aide à créer, gérer et partager votre contenu efficacement. Simplifiez votre workflow et boostez votre productivité.</p>
+        <div class="social-icons">
+          <a href="#" aria-label="Facebook">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-facebook" viewBox="0 0 16 16">
+              <path d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951"/>
+            </svg>
+          </a>
+          <a href="#" aria-label="Twitter">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-twitter-x" viewBox="0 0 16 16">
+              <path d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75Zm-.86 13.028h1.36L4.323 2.145H2.865l8.875 11.633Z"/>
+            </svg>
+          </a>
+          <a href="#" aria-label="LinkedIn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-linkedin" viewBox="0 0 16 16">
+              <path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854zm4.943 12.248V6.169H2.542v7.225zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248S2.4 3.226 2.4 3.934c0 .694.521 1.248 1.327 1.248zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016l.016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225z"/>
+            </svg>
+          </a>
+          <a href="#" aria-label="Instagram">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-instagram" viewBox="0 0 16 16">
+              <path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.917 3.917 0 0 0-1.417.923A3.927 3.927 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.916 3.916 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.926 3.926 0 0 0-.923-1.417A3.911 3.911 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0h.003zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599.28.28.453.546.598.92.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.47 2.47 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.478 2.478 0 0 1-.92-.598 2.48 2.48 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233 0-2.136.008-2.388.046-3.231.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92.28-.28.546-.453.92-.598.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045v.002zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92zm-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217zm0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334"/>
+            </svg>
+          </a>
+        </div>
       </div>
-      <div class="col-md-2">
-        <h5>Liens</h5>
+      <div class="col-lg-2 col-md-6 mb-4 mb-md-0">
+        <h5>Liens rapides</h5>
         <ul class="list-unstyled">
           <li><a href="#" class="text-white">Accueil</a></li>
-          <li><a href="#" class="text-white">Fonctionnalités</a></li>
+          <li><a href="#features" class="text-white">Fonctionnalités</a></li>
           <li><a href="#" class="text-white">Tarifs</a></li>
-          <li><a href="#" class="text-white">Contact</a></li>
+          <li><a href="#blog" class="text-white">Blog</a></li>
+          <li><a href="#contact" class="text-white">Contact</a></li>
         </ul>
       </div>
-      <div class="col-md-3">
+      <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
         <h5>Support</h5>
         <ul class="list-unstyled">
           <li><a href="#" class="text-white">Centre d'aide</a></li>
           <li><a href="#" class="text-white">Documentation</a></li>
-          <li><a href="#" class="text-white">Communauté</a></li>
+          <li><a href="#" class="text-white">Forum communautaire</a></li>
+          <li><a href="#" class="text-white">Tutoriels vidéo</a></li>
+          <li><a href="#" class="text-white">Statut du service</a></li>
         </ul>
       </div>
-      <div class="col-md-3">
-        <h5>Contact</h5>
-        <ul class="list-unstyled">
-          <li><i class="bi bi-envelope me-2"></i> contact&#64;example.com</li>
-          <li><i class="bi bi-telephone me-2"></i> +33 1 23 45 67 89</li>
-          <li><i class="bi bi-geo-alt me-2"></i> 123 Rue de Paris, 75000 Paris</li>
-        </ul>
+      <div class="col-lg-3 col-md-6">
+        <h5>Newsletter</h5>
+        <p>Recevez nos dernières actualités et offres spéciales</p>
+        <div class="footer-newsletter">
+          <div class="input-group">
+            <input type="email" class="form-control" placeholder="Votre email" aria-label="Adresse email">
+            <button class="btn btn-primary" type="button">S'abonner</button>
+          </div>
+        </div>
       </div>
     </div>
     <hr>
-    <div class="text-center">
-      <p class="mb-0">&copy; 2025 Système de Gestion de Contenu. Tous droits réservés.</p>
+    <div class="footer-bottom">
+      <p class="copyright mb-0">&copy; 2025 Système de Gestion de Contenu. Tous droits réservés.</p>
+      <div class="footer-links">
+        <a href="#">Confidentialité</a>
+        <a href="#">Conditions</a>
+        <a href="#">Cookies</a>
+      </div>
     </div>
   </div>
 </footer>
+
+<!-- Bouton de retour en haut -->
+<button class="btn-scroll-top" id="btnScrollTop" (click)="scrollToTop()" [ngClass]="{'show': isScrolled}">
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-arrow-up" viewBox="0 0 16 16">
+    <path fill-rule="evenodd" d="M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5"/>
+  </svg>
+</button>
+            <!-- <div class="stat-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-building" viewBox="0 0 16 16">
+                <path d="M4 2.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm-9 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm-9 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm6 4.5a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-13 0a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm3 0a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm3 0a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm3 0a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5z"/>
+              </svg> -->

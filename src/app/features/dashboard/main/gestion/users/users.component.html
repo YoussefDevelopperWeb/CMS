@@ -1,0 +1,318 @@
+<div class="user-management-container">
+  <!-- Vue Liste des utilisateurs -->
+  <div *ngIf="showUserList">
+    <!-- En-tête avec titre et bouton d'ajout -->
+    <div class="user-management-header">
+      <div class="header-content">
+        <h1>Gestion des utilisateurs</h1>
+        <!-- <p *ngIf="isSuperAdmin">En tant que Super Administrateur, vous pouvez gérer tous les utilisateurs et administrateurs.</p> -->
+        <p *ngIf="isAdmin || isSuperAdmin">En tant qu'Administrateur, vous pouvez gérer les utilisateurs .</p> 
+      </div>
+
+    </div>
+
+    <!-- Messages d'alerte -->
+    <div class="alert alert-error" *ngIf="errorMessage">
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      <span>{{errorMessage}}</span>
+      <button class="btn-close" (click)="errorMessage = ''">
+        <i class="bi bi-x"></i>
+      </button>
+    </div>
+
+    <div class="alert alert-success" *ngIf="successMessage">
+      <i class="bi bi-check-circle-fill"></i>
+      <span>{{successMessage}}</span>
+      <button class="btn-close" (click)="successMessage = ''">
+        <i class="bi bi-x"></i>
+      </button>
+    </div>
+
+    <!-- Section de filtrage -->
+    <div class="filters-container">
+
+      <div class="filters-section">
+
+        <div class="main-filters">
+          <div class="filter-group">
+            <label for="search">Nom & prénom</label>
+            <div class="search-input">
+              <input type="text" id="search" placeholder="Saisissez un nom et/ou prénom" [(ngModel)]="searchTerm">
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <label for="role-filter">Rôle</label>
+            <div class="select-wrapper">
+              <select id="role-filter" [(ngModel)]="selectedRoleFilter">
+                <option value="all">Tous les rôles</option>
+                <option value="user">Utilisateur</option>
+                <option value="arch">Architecte</option>
+                <option value="respo">Responsable</option>
+              </select>
+              <i class="bi bi-chevron-down"></i>
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <label for="status-filter">Statut</label>
+            <div class="select-wrapper">
+              <select id="status-filter" [(ngModel)]="selectedStatusFilter">
+                <option value="all">Sélectionnez un statut</option>
+                <option value="active">Actif</option>
+                <option value="inactive">Désactivé</option>
+              </select>
+              <i class="bi bi-chevron-down"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Boutons de filtrage -->
+        <div class="filter-actions">
+          <button class="btn btn-secondary" (click)="resetFilters()">
+            <i class="bi bi-arrow-counterclockwise"></i>
+            Initialiser
+          </button>
+          <button class="btn btn-primary" (click)="applyFilters()">
+            <i class="bi bi-funnel"></i>
+            Filtrer
+          </button>
+          <button class="btn btn-outline-secondary toggle-advanced" (click)="toggleAdvancedFilters()">
+            <i class="bi" [ngClass]="showAdvancedFilters ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+            {{ showAdvancedFilters ? 'Masquer filtres avancés' : 'Plus de filtres' }}
+          </button>
+        </div>
+      </div>
+      <!-- Filtres avancés (cachés par défaut) -->
+      <div class="advanced-filters" *ngIf="showAdvancedFilters">
+        <div class="filter-group">
+          <label for="fonction-filter">Fonction</label>
+          <div class="search-input">
+            <input type="text" id="fonction-filter" placeholder="Saisissez une fonction" [(ngModel)]="fonctionFilter">
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label for="email-filter">Email</label>
+          <div class="search-input">
+            <input type="text" id="email-filter" placeholder="Saisissez un email" [(ngModel)]="emailFilter">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Liste des utilisateurs -->
+    <div class="users-list-section">
+      <div class="users-list-header">
+        <h2>Liste des utilisateurs</h2>
+        <!-- <button class="btn-refresh" (click)="loadUsers()">
+          <i class="bi bi-arrow-clockwise"></i>
+        </button> -->
+      </div>
+
+      <!-- Tableau des utilisateurs -->
+      <div class="user-table-container">
+        <table class="user-table">
+          <thead>
+            <tr>
+              <th class="checkbox-cell">
+                <input type="checkbox" id="select-all">
+              </th>
+              <th>NOM & PRÉNOM</th>
+              <th>FONCTION</th>
+              <th>E-MAIL</th>
+              <th>RÔLE</th>
+              <th>STATUT</th>
+              <th class="actions-cell">ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- État de chargement -->
+            <tr *ngIf="loading">
+              <td colspan="7" class="loading-cell">
+                <div class="loading-spinner"></div>
+                <p>Chargement des utilisateurs...</p>
+              </td>
+            </tr>
+
+            <!-- Aucun résultat -->
+            <tr *ngIf="!loading && displayedUsers.length === 0">
+              <td colspan="7" class="no-results">
+                <i class="bi bi-search"></i>
+                <p>Aucun utilisateur trouvé</p>
+              </td>
+            </tr>
+
+            <!-- Liste des utilisateurs -->
+            <tr *ngFor="let user of displayedUsers" [class.inactive-row]="!user.enabled">
+              <td class="checkbox-cell">
+                <input type="checkbox">
+              </td>
+              <td class="name-cell">{{user.username}}</td>
+              <td>{{user.fonction || 'Non défini'}}</td>
+              <td>{{user.email}}</td>
+              <td>{{getUserRoleDisplay(user)}}</td>
+              <td>
+                <!-- <span class="status-badge" [class.active]="user.enabled" [class.inactive]="!user.enabled">
+                  {{user.enabled ? 'Actif' : 'Désactivé'}}
+                </span> -->
+                <div class="toggle-switch-sm">
+                  <input type="checkbox" [id]="'status-' + user.id" [(ngModel)]="user.enabled" 
+             (change)="updateUserStatus(user)" [disabled]="!canEditUser(user)">
+                  <label [for]="'status-' + user.id" class="toggle-label-sm">
+        <span class="toggle-knob-sm"></span>
+      </label>
+    </div>
+              </td>
+              <td class="actions-cell">
+
+                <button class="btn-action edit"  (click)="selectUser(user)">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn-action delete"  (click)="deleteUser(user.id)">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination-section">
+        <div class="items-per-page">
+          <span>Affichage de</span>
+          <strong>10</strong>
+          <span>utilisateurs sur {{totalItems}} au total</span>
+        </div>
+
+        <div class="pagination">
+          <!-- Bouton précédent -->
+          <button class="page-nav prev" [disabled]="currentPage === 1" (click)="prevPage()">
+            <i class="bi bi-chevron-left"></i>
+          </button>
+
+          <!-- Numéros de page -->
+          <ng-container *ngFor="let page of getPageNumbers()">
+            <ng-container *ngIf="page !== -1; else ellipsis">
+              <button class="page-number" [class.active]="page === currentPage" (click)="goToPage(page)">
+                {{page}}
+              </button>
+            </ng-container>
+            <ng-template #ellipsis>
+              <span class="page-ellipsis">...</span>
+            </ng-template>
+          </ng-container>
+
+          <!-- Bouton suivant -->
+          <button class="page-nav next" [disabled]="currentPage === totalPages" (click)="nextPage()">
+            <i class="bi bi-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vue Formulaire d'édition -->
+  <div class="edit-form-container" *ngIf="showEditForm">
+    <div class="edit-form-header">
+      <a href="javascript:void(0)" class="return-link" (click)="cancelEditing()">
+        <i class="bi bi-arrow-left"></i>
+        Retour à la liste
+      </a>
+      <h1>{{ isNewUser ? 'Ajouter un utilisateur' : 'Modifier le profil de l\'utilisateur' }}</h1>
+    </div>
+
+    <!-- Messages d'alerte -->
+    <div class="alert alert-error" *ngIf="errorMessage">
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      <span>{{errorMessage}}</span>
+      <button class="btn-close" (click)="errorMessage = ''">
+        <i class="bi bi-x"></i>
+      </button>
+    </div>
+
+    <div class="alert alert-success" *ngIf="successMessage">
+      <i class="bi bi-check-circle-fill"></i>
+      <span>{{successMessage}}</span>
+      <button class="btn-close" (click)="successMessage = ''">
+        <i class="bi bi-x"></i>
+      </button>
+    </div>
+
+    <div class="edit-form-content" *ngIf="selectedUser">
+      <form (ngSubmit)="updateUser()">
+        <!-- Informations de profil -->
+        <div class="form-section">
+          <h2>Profil</h2>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="username">Nom</label>
+              <input type="text" id="username" [(ngModel)]="selectedUser.username" name="username" required>
+            </div>
+
+            <div class="form-group">
+              <label for="email">E-mail</label>
+              <input type="email" id="email" [(ngModel)]="selectedUser.email" name="email" required>
+            </div>
+
+            <div class="form-group">
+              <label for="fonction">Fonction</label>
+              <input type="text" id="fonction" [(ngModel)]="selectedUser.fonction" name="fonction">
+            </div>
+
+
+          </div>
+        </div>
+
+        <!-- Modifications à apporter au template HTML -->
+
+        <!-- Remplacer la section du formulaire de rôle dans users.component.html -->
+        <div class="form-section">
+          <h2>Rôle</h2>
+          <div class="form-grid">
+            <div class="form-group" *ngIf="canChangeRole(selectedUser)">
+              <label for="role">Rôle</label>
+              <div class="select-wrapper">
+                <select id="role" [(ngModel)]="selectedUserRole" name="role" required>
+                  <option *ngFor="let role of availableRoles" [value]="role.value">{{ role.label }}</option>
+                </select>
+                <i class="bi bi-chevron-down"></i>
+              </div>
+            </div>
+
+            <div class="form-group" *ngIf="!canChangeRole(selectedUser)">
+              <label for="role">Rôle</label>
+              <div class="select-wrapper">
+                <select id="role" [(ngModel)]="selectedUserRole" name="role" required>
+                  <option *ngFor="let role of availableRoles" [value]="role.value">{{ role.label }}</option>
+                </select>
+                <i class="bi bi-chevron-down"></i>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>État</label>
+              <div class="toggle-switch">
+                <input type="checkbox" id="status" [(ngModel)]="selectedUser.enabled" name="enabled">
+                <label for="status" class="toggle-label">
+                  <span class="toggle-knob"></span>
+                </label>
+                <span class="status-text">{{ selectedUser.enabled ? 'Actif' : 'Inactif' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Actions -->
+        <div class="form-actions">
+          <button type="button" class="btn btn-outline-secondary" (click)="cancelEditing()">
+            Annuler
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="loading">
+            Enregistrer
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

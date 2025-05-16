@@ -1,0 +1,536 @@
+<div class="roles-container">
+  <div class="roles-header">
+    <h2 class="page-title">Gestion des rôles</h2>
+    <button class="btn btn-primary add-role-btn" (click)="openAddModal()">
+      <i class="bi bi-plus"></i> Ajouter un nouveau rôle
+    </button>
+  </div>
+
+  <div class="filters-section">
+    <div class="filter-container">
+      <div class="filter-item">
+        <label for="roleFilter">Rôle</label>
+        <select id="roleFilter" class="form-select" [(ngModel)]="roleFilter" (change)="filterRoles()">
+          <option value="all">Sélectionnez un rôle</option>
+          <option *ngFor="let role of roles" [value]="role.name">{{ role.name }}</option>
+        </select>
+      </div>
+      <div class="filter-item">
+        <label for="statusFilter">Statut</label>
+        <select id="statusFilter" class="form-select" [(ngModel)]="statutFilter" (change)="filterRoles()">
+          <option value="all">Tous les statuts</option>
+          <option value="active">Actif</option>
+          <option value="inactive">Inactif</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="roles-list-section">
+    <div class="list-header">
+      <h2>Liste des rôles</h2>
+      <button class="btn btn-light refresh-btn" (click)="loadRoles()">
+        <i class="bi bi-arrow-clockwise"></i>
+      </button>
+    </div>
+
+    <div *ngIf="isLoading" class="loader-container">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+    </div>
+
+    <div *ngIf="!isLoading && filteredRoles.length === 0" class="no-data-message">
+      <i class="bi bi-folder-x"></i>
+      <p>Aucun rôle trouvé</p>
+    </div>
+
+    <table *ngIf="!isLoading && filteredRoles.length > 0" class="roles-table">
+      <thead>
+        <tr>
+          <th width="40">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="selectAll">
+            </div>
+          </th>
+          <th>NOM DU RÔLE</th>
+          <!-- <th>STATUT</th> -->
+          <th width="120">ACTIONS</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let role of filteredRoles">
+          <td>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" [id]="'role-' + role.id">
+            </div>
+          </td>
+          <td>{{ role.name }}</td>
+
+          <td>
+            <div class="actions-cell">
+              <button class="btn btn-sm btn-outline-primary action-btn" (click)="openEditModal(role)">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-danger action-btn" (click)="confirmDelete(role)">
+                <i class="bi bi-trash"></i>
+              </button>
+
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="!isLoading && filteredRoles.length > 0" class="pagination-container">
+      <div class="pagination-info">
+        Showing {{ currentPage }} of {{ totalPages }}, {{ totalItems }} items
+      </div>
+      <ul class="pagination">
+        <li class="page-item" [class.disabled]="currentPage === 1">
+          <a class="page-link" href="javascript:void(0)" (click)="previousPage()"><i class="bi bi-chevron-left"></i></a>
+        </li>
+        <li class="page-item" *ngFor="let page of getPages()" [class.active]="page === currentPage">
+          <a class="page-link" href="javascript:void(0)" (click)="goToPage(page)">{{ page }}</a>
+        </li>
+        <li class="page-item" [class.disabled]="currentPage === totalPages">
+          <a class="page-link" href="javascript:void(0)" (click)="nextPage()"><i class="bi bi-chevron-right"></i></a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Modal pour ajouter/modifier un rôle -->
+<div class="modal" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ isEditing ? 'Modifier le rôle' : 'Ajouter un nouveau rôle' }}</h5>
+        <button type="button" class="btn-close" (click)="closeModal()" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Message d'alerte dans le modal -->
+        <div *ngIf="message" [class]="isError ? 'alert alert-danger' : 'alert alert-success'" role="alert">
+          {{ message }}
+        </div>
+
+        <form [formGroup]="roleForm">
+          <div class="card mb-3">
+            <div class="card-header">
+              <h6>Informations</h6>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="roleName" class="form-label">Nom du rôle *</label>
+                  <input type="text" class="form-control" id="roleName" formControlName="name"
+                    placeholder="Entrez le nom du rôle">
+                  <div *ngIf="roleForm.get('name')?.invalid && roleForm.get('name')?.touched"
+                    class="form-text text-danger">
+                    <div *ngIf="roleForm.get('name')?.errors?.['required']">Le nom du rôle est requis.</div>
+                    <div *ngIf="roleForm.get('name')?.errors?.['minlength']">Le nom du rôle doit comporter au moins 3
+                      caractères.</div>
+                    <div *ngIf="roleForm.get('name')?.errors?.['maxlength']">Le nom du rôle ne doit pas dépasser 50
+                      caractères.</div>
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="roleDescription" class="form-label">Description</label>
+                  <textarea class="form-control" id="roleDescription" rows="3" placeholder="Description du rôle"
+                    formControlName="description"></textarea>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="roleStatut"
+                      [checked]="roleForm.get('statut')?.value === true"
+                      (change)="roleForm.get('statut')?.setValue($event.target ? true : false)">
+                    <label class="form-check-label" for="roleStatut">État</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Privilèges du rôle -->
+          <div class="card mb-3">
+            <div class="card-header">
+              <h6>Privilèges du rôle</h6>
+            </div>
+            <div class="card-body">
+              <!-- Onglets pour les types de privilèges -->
+              <div class="mb-3">
+                <ul class="nav nav-tabs">
+                  <li class="nav-item">
+                    <a class="nav-link" [class.active]="activeTab === 'library'"
+                      (click)="setActiveTab('library')">Privilèges librairie</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" [class.active]="activeTab === 'management'"
+                      (click)="setActiveTab('management')">Privilèges de gestion</a>
+                  </li>
+                </ul>
+              </div>
+
+              <!-- Privilèges librairie -->
+              <div *ngIf="activeTab === 'library'" class="privileges-section">
+                <div class="section-header">
+                  <h6>Tous les privilèges librairie</h6>
+                  <div class="toggle-buttons">
+                    <button type="button" class="btn btn-sm btn-outline-primary"
+                      (click)="toggleAllPrivileges('library', true)">Tous</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary"
+                      (click)="toggleAllPrivileges('library', false)">Aucun</button>
+                  </div>
+                </div>
+
+                <!-- Web Privileges Section -->
+                <div class="privilege-category">
+                  <div class="category-header">
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" id="webToggle"
+                        [checked]="isSubcategorySelected('library', 'web')"
+                        (change)="updateSubcategorySelection('library', 'web')">
+                      <label class="form-check-label" for="webToggle">Web</label>
+                    </div>
+                    <button class="btn btn-sm btn-link" type="button" data-bs-toggle="collapse"
+                      data-bs-target="#webPrivileges" aria-expanded="false" aria-controls="webPrivileges">
+                      <i class="bi bi-chevron-down"></i>
+                    </button>
+                  </div>
+
+                  <div class="collapse show" id="webPrivileges">
+                    <!-- Images Subcategory -->
+                    <div class="subcategory">
+                      <div class="subcategory-header">
+                        <div class="form-check form-switch">
+                          <input class="form-check-input" type="checkbox" id="imagesToggle"
+                            [checked]="isSubcategorySelected('library', 'web', 'images')"
+                            (change)="updateSubcategorySelection('library', 'web', 'images')">
+                          <label class="form-check-label" for="imagesToggle">Images</label>
+                        </div>
+                        <button class="btn btn-sm btn-link" type="button" data-bs-toggle="collapse"
+                          data-bs-target="#imagesPrivileges" aria-expanded="false" aria-controls="imagesPrivileges">
+                          <i class="bi bi-chevron-down"></i>
+                        </button>
+                      </div>
+
+                      <div class="collapse show" id="imagesPrivileges">
+                        <div class="subcategory-privileges">
+                          <!-- Fixed: Using let instead of index as i -->
+                          <ng-container *ngFor="let privilege of getFilteredPrivileges('web', 'images'); let i = index">
+                            <div class="form-check form-switch">
+                              <input class="form-check-input" type="checkbox" [id]="'privilege_' + privilege.id"
+                                [(ngModel)]="privilege.selected" [ngModelOptions]="{standalone: true}">
+                              <label class="form-check-label" [for]="'privilege_' + privilege.id">{{ privilege.name }}</label>
+                            </div>
+                          </ng-container>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Videos Subcategory -->
+                    <div class="subcategory">
+                      <div class="subcategory-header">
+                        <div class="form-check form-switch">
+                          <input class="form-check-input" type="checkbox" id="videosToggle"
+                            [checked]="isSubcategorySelected('library', 'web', 'videos')"
+                            (change)="updateSubcategorySelection('library', 'web', 'videos')">
+                          <label class="form-check-label" for="videosToggle">Vidéos</label>
+                        </div>
+                        <button class="btn btn-sm btn-link" type="button" data-bs-toggle="collapse"
+                          data-bs-target="#videosPrivileges" aria-expanded="false" aria-controls="videosPrivileges">
+                          <i class="bi bi-chevron-down"></i>
+                        </button>
+                      </div>
+
+                      <div class="collapse show" id="videosPrivileges">
+                        <div class="subcategory-privileges">
+                          <ng-container *ngFor="let privilege of getFilteredPrivileges('web', 'videos'); let i = index">
+                            <div class="form-check form-switch">
+                              <input class="form-check-input" type="checkbox" [id]="'privilege_' + privilege.id"
+                                [(ngModel)]="privilege.selected" [ngModelOptions]="{standalone: true}">
+                              <label class="form-check-label" [for]="'privilege_' + privilege.id">{{ privilege.name }}</label>
+                            </div>
+                          </ng-container>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Pictos Subcategory -->
+                    <div class="subcategory">
+                      <div class="subcategory-header">
+                        <div class="form-check form-switch">
+                          <input class="form-check-input" type="checkbox" id="pictosToggle"
+                            [checked]="isSubcategorySelected('library', 'web', 'pictos')"
+                            (change)="updateSubcategorySelection('library', 'web', 'pictos')">
+                          <label class="form-check-label" for="pictosToggle">Pictos</label>
+                        </div>
+                        <button class="btn btn-sm btn-link" type="button" data-bs-toggle="collapse"
+                          data-bs-target="#pictosPrivileges" aria-expanded="false" aria-controls="pictosPrivileges">
+                          <i class="bi bi-chevron-down"></i>
+                        </button>
+                      </div>
+
+                      <div class="collapse show" id="pictosPrivileges">
+                        <div class="subcategory-privileges">
+                          <ng-container *ngFor="let privilege of getFilteredPrivileges('web', 'pictos'); let i = index">
+                            <div class="form-check form-switch">
+                              <input class="form-check-input" type="checkbox" [id]="'privilege_' + privilege.id"
+                                [(ngModel)]="privilege.selected" [ngModelOptions]="{standalone: true}">
+                              <label class="form-check-label" [for]="'privilege_' + privilege.id">{{ privilege.name }}</label>
+                            </div>
+                          </ng-container>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Documents Subcategory -->
+                    <div class="subcategory">
+                      <div class="subcategory-header">
+                        <div class="form-check form-switch">
+                          <input class="form-check-input" type="checkbox" id="documentsToggle"
+                            [checked]="isSubcategorySelected('library', 'web', 'documents')"
+                            (change)="updateSubcategorySelection('library', 'web', 'documents')">
+                          <label class="form-check-label" for="documentsToggle">Documents</label>
+                        </div>
+                        <button class="btn btn-sm btn-link" type="button" data-bs-toggle="collapse"
+                          data-bs-target="#documentsPrivileges" aria-expanded="false"
+                          aria-controls="documentsPrivileges">
+                          <i class="bi bi-chevron-down"></i>
+                        </button>
+                      </div>
+
+                      <div class="collapse show" id="documentsPrivileges">
+                        <div class="subcategory-privileges">
+                          <ng-container *ngFor="let privilege of getFilteredPrivileges('web', 'documents'); let i = index">
+                            <div class="form-check form-switch">
+                              <input class="form-check-input" type="checkbox" [id]="'privilege_' + privilege.id"
+                                [(ngModel)]="privilege.selected" [ngModelOptions]="{standalone: true}">
+                              <label class="form-check-label" [for]="'privilege_' + privilege.id">{{ privilege.name }}</label>
+                            </div>
+                          </ng-container>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Mobile Privileges Section -->
+                <div class="privilege-category">
+                  <div class="category-header">
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" id="mobileToggle"
+                        [checked]="isSubcategorySelected('library', 'mobile')"
+                        (change)="updateSubcategorySelection('library', 'mobile')">
+                      <label class="form-check-label" for="mobileToggle">Mobile</label>
+                    </div>
+                    <button class="btn btn-sm btn-link" type="button" data-bs-toggle="collapse"
+                      data-bs-target="#mobilePrivileges" aria-expanded="false" aria-controls="mobilePrivileges">
+                      <i class="bi bi-chevron-down"></i>
+                    </button>
+                  </div>
+
+                  <div class="collapse show" id="mobilePrivileges">
+                    <div class="subcategory-privileges">
+                      <ng-container *ngFor="let privilege of filteredLibraryPrivileges['mobile']; let i = index">
+                        <div class="form-check form-switch">
+                          <input class="form-check-input" type="checkbox" [id]="'privilege_' + privilege.id"
+                            [(ngModel)]="privilege.selected" [ngModelOptions]="{standalone: true}">
+                          <label class="form-check-label" [for]="'privilege_' + privilege.id">{{ privilege.name }}</label>
+                        </div>
+                      </ng-container>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Social Media Privileges -->
+                <div class="privilege-category">
+                  <div class="category-header">
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" id="socialToggle"
+                        [checked]="isSubcategorySelected('library', 'social')"
+                        (change)="updateSubcategorySelection('library', 'social')">
+                      <label class="form-check-label" for="socialToggle">Social Media</label>
+                    </div>
+                    <button class="btn btn-sm btn-link" type="button" data-bs-toggle="collapse"
+                      data-bs-target="#socialPrivileges" aria-expanded="false" aria-controls="socialPrivileges">
+                      <i class="bi bi-chevron-down"></i>
+                    </button>
+                  </div>
+
+                  <div class="collapse show" id="socialPrivileges">
+                    <div class="subcategory-privileges">
+                      <ng-container *ngFor="let privilege of filteredLibraryPrivileges['social']; let i = index">
+                        <div class="form-check form-switch">
+                          <input class="form-check-input" type="checkbox" [id]="'privilege_' + privilege.id"
+                            [(ngModel)]="privilege.selected" [ngModelOptions]="{standalone: true}">
+                          <label class="form-check-label" [for]="'privilege_' + privilege.id">{{ privilege.name }}</label>
+                        </div>
+                      </ng-container>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- PLV Privileges -->
+                <div class="privilege-category">
+                  <div class="category-header">
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" id="plvToggle"
+                        [checked]="isSubcategorySelected('library', 'plv')"
+                        (change)="updateSubcategorySelection('library', 'plv')">
+                      <label class="form-check-label" for="plvToggle">P.LV</label>
+                    </div>
+                    <button class="btn btn-sm btn-link" type="button" data-bs-toggle="collapse"
+                      data-bs-target="#plvPrivileges" aria-expanded="false" aria-controls="plvPrivileges">
+                      <i class="bi bi-chevron-down"></i>
+                    </button>
+                  </div>
+
+                  <div class="collapse show" id="plvPrivileges">
+                    <div class="subcategory-privileges">
+                      <ng-container *ngFor="let privilege of filteredLibraryPrivileges['plv']; let i = index">
+                        <div class="form-check form-switch">
+                          <input class="form-check-input" type="checkbox" [id]="'privilege_' + privilege.id"
+                            [(ngModel)]="privilege.selected" [ngModelOptions]="{standalone: true}">
+                          <label class="form-check-label" [for]="'privilege_' + privilege.id">{{ privilege.name }}</label>
+                        </div>
+                      </ng-container>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Campagnes Privileges -->
+                <div class="privilege-category">
+                  <div class="category-header">
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" id="campagnesToggle"
+                        [checked]="isSubcategorySelected('library', 'campagnes')"
+                        (change)="updateSubcategorySelection('library', 'campagnes')">
+                      <label class="form-check-label" for="campagnesToggle">Campagnes</label>
+                    </div>
+                    <button class="btn btn-sm btn-link" type="button" data-bs-toggle="collapse"
+                      data-bs-target="#campagnesPrivileges" aria-expanded="false" aria-controls="campagnesPrivileges">
+                      <i class="bi bi-chevron-down"></i>
+                    </button>
+                  </div>
+
+                  <div class="collapse show" id="campagnesPrivileges">
+                    <div class="subcategory-privileges">
+                      <ng-container *ngFor="let privilege of filteredLibraryPrivileges['campagnes']; let i = index">
+                        <div class="form-check form-switch">
+                          <input class="form-check-input" type="checkbox" [id]="'privilege_' + privilege.id"
+                            [(ngModel)]="privilege.selected" [ngModelOptions]="{standalone: true}">
+                          <label class="form-check-label" [for]="'privilege_' + privilege.id">{{ privilege.name }}</label>
+                        </div>
+                      </ng-container>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Privilèges de gestion -->
+              <div *ngIf="activeTab === 'management'" class="privileges-section">
+                <div class="section-header">
+                  <h6>Tous les privilèges de gestion</h6>
+                  <div class="toggle-buttons">
+                    <button type="button" class="btn btn-sm btn-outline-primary"
+                      (click)="toggleAllPrivileges('management', true)">Tous</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary"
+                      (click)="toggleAllPrivileges('management', false)">Aucun</button>
+                  </div>
+                </div>
+
+                <!-- Utilisateurs Privileges -->
+                <div class="privilege-category">
+                  <div class="category-header">
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" id="utilisateursToggle"
+                        [checked]="isSubcategorySelected('management', 'utilisateurs')"
+                        (change)="updateSubcategorySelection('management', 'utilisateurs')">
+                      <label class="form-check-label" for="utilisateursToggle">Utilisateurs</label>
+                    </div>
+                    <button class="btn btn-sm btn-link" type="button" data-bs-toggle="collapse"
+                      data-bs-target="#utilisateursPrivileges" aria-expanded="false"
+                      aria-controls="utilisateursPrivileges">
+                      <i class="bi bi-chevron-down"></i>
+                    </button>
+                  </div>
+
+                  <div class="collapse show" id="utilisateursPrivileges">
+                    <div class="subcategory-privileges">
+                      <ng-container *ngFor="let privilege of filteredManagementPrivileges['utilisateurs']; let i = index">
+                        <div class="form-check form-switch">
+                          <input class="form-check-input" type="checkbox" [id]="'privilege_' + privilege.id"
+                            [(ngModel)]="privilege.selected" [ngModelOptions]="{standalone: true}">
+                          <label class="form-check-label" [for]="'privilege_' + privilege.id">{{ privilege.name }}</label>
+                        </div>
+                      </ng-container>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Roles Privileges -->
+                <div class="privilege-category">
+                  <div class="category-header">
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" id="rolesToggle"
+                        [checked]="isSubcategorySelected('management', 'roles')"
+                        (change)="updateSubcategorySelection('management', 'roles')">
+                      <label class="form-check-label" for="rolesToggle">Roles</label>
+                    </div>
+                    <button class="btn btn-sm btn-link" type="button" data-bs-toggle="collapse"
+                      data-bs-target="#rolesPrivileges" aria-expanded="false" aria-controls="rolesPrivileges">
+                      <i class="bi bi-chevron-down"></i>
+                    </button>
+                  </div>
+
+                  <div class="collapse show" id="rolesPrivileges">
+                    <div class="subcategory-privileges">
+                      <ng-container *ngFor="let privilege of filteredManagementPrivileges['roles']; let i = index">
+                        <div class="form-check form-switch">
+                          <input class="form-check-input" type="checkbox" [id]="'privilege_' + privilege.id"
+                            [(ngModel)]="privilege.selected" [ngModelOptions]="{standalone: true}">
+                          <label class="form-check-label" [for]="'privilege_' + privilege.id">{{ privilege.name }}</label>
+                        </div>
+                      </ng-container>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">Annuler</button>
+        <button type="button" class="btn btn-primary" [disabled]="roleForm.invalid" (click)="saveRole()">
+          {{ isEditing ? 'Mettre à jour' : 'Enregistrer' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de confirmation de suppression -->
+<div class="modal" [class.show]="confirmDeleteModal" [style.display]="confirmDeleteModal ? 'block' : 'none'"
+  tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Confirmer la suppression</h5>
+        <button type="button" class="btn-close" (click)="closeDeleteModal()" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Êtes-vous sûr de vouloir supprimer le rôle "{{ roleToDelete?.name }}" ?</p>
+        <p class="text-danger">Cette action est irréversible.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeDeleteModal()">Annuler</button>
+        <button type="button" class="btn btn-danger" (click)="deleteRole()">Supprimer</button>
+      </div>
+    </div>
+  </div>
+</div>

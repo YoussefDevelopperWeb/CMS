@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { TokenStorageService } from '../../../core/services/token-storage.service';
 
 @Component({
   selector: 'app-reset-password',
@@ -44,7 +45,8 @@ export class ResetPasswordComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private tokenStorage: TokenStorageService 
   ) { }
 
   ngOnInit(): void {
@@ -55,6 +57,9 @@ export class ResetPasswordComponent implements OnInit {
     if (token) {
       this.form.code = token; // Spring Boot utilise généralement un token plutôt qu'un code
       this.resetStep = 'reset';
+    }
+    if (this.tokenStorage.getToken()) {
+      this.router.navigate(['/dashboard']);
     }
   }
 
@@ -68,23 +73,24 @@ export class ResetPasswordComponent implements OnInit {
     }
    
     // Appel au service Spring Boot pour demander la réinitialisation
-    
     this.authService.requestPasswordReset(email).subscribe({
-      
       next: (response: any) => {
         this.isCodeSent = true;
         this.isRequestFailed = false;
-        // Spring renvoie généralement un message de confirmation
+        // Au lieu de naviguer directement, on affiche le message de confirmation
         console.log('Email envoyé avec succès:', response?.message || 'Succès');
       },
-      
       error: (err: HttpErrorResponse) => {
         this.isRequestFailed = true;
         this.extractErrorMessage(err);
         console.error('Erreur de demande de réinitialisation:', err);
       }
-      
     });
+  }
+
+  // Méthode pour continuer vers l'étape de réinitialisation
+  continueToReset(): void {
+    this.resetStep = 'reset';
   }
 
   onSubmit(): void {

@@ -7,7 +7,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 import { ResetPasswordComponent } from './reset-password.component';
-import { AuthService } from '../../../../core/services/auth.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 describe('ResetPasswordComponent', () => {
   let component: ResetPasswordComponent;

@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { TokenStorageService } from '../../../core/services/token-storage.service';
-import { UserService } from '../../../core/services/user.service';
-import { AuthService } from '../../../core/services/auth.service';
+import { TokenStorageService } from '../../../../core/services/token-storage.service';
+import { UserService } from '../../../../core/services/user.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-home-content',
@@ -59,6 +59,7 @@ export class HomeContentComponent implements OnInit {
 
   // Total count for percentage calculations
   totalChartCount: number = 0;
+cards: any;
 
   constructor(
     private router: Router,

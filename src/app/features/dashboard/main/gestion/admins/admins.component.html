@@ -1,0 +1,279 @@
+<div class="user-management-container">
+  <!-- Vue Liste des administrateurs -->
+  <div *ngIf="showAdminList">
+    <!-- En-tête avec titre et bouton d'ajout -->
+    <div class="user-management-header">
+      <div class="header-content">
+        <h1>Gestion des administrateurs</h1>
+        <p *ngIf="isSuperAdmin">En tant que Super Administrateur, vous pouvez gérer tous les administrateurs.</p>
+      </div>
+    </div>
+
+    <!-- Messages d'alerte -->
+    <div class="alert alert-error" *ngIf="errorMessage">
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      <span>{{errorMessage}}</span>
+      <button class="btn-close" (click)="errorMessage = ''">
+        <i class="bi bi-x"></i>
+      </button>
+    </div>
+
+    <div class="alert alert-success" *ngIf="successMessage">
+      <i class="bi bi-check-circle-fill"></i>
+      <span>{{successMessage}}</span>
+      <button class="btn-close" (click)="successMessage = ''">
+        <i class="bi bi-x"></i>
+      </button>
+    </div>
+
+    <!-- Section de filtrage -->
+    <div class="filters-container">
+      <div class="filters-section">
+        <div class="main-filters">
+          <div class="filter-group">
+            <label for="search">Nom & prénom</label>
+            <div class="search-input">
+              <input type="text" id="search" placeholder="Saisissez un nom et/ou prénom" [(ngModel)]="searchTerm">
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <label for="status-filter">Statut</label>
+            <div class="select-wrapper">
+              <select id="status-filter" [(ngModel)]="selectedStatusFilter">
+                <option value="all">Sélectionnez un statut</option>
+                <option value="active">Actif</option>
+                <option value="inactive">Désactivé</option>
+              </select>
+              <i class="bi bi-chevron-down"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Boutons de filtrage -->
+        <div class="filter-actions">
+          <button class="btn btn-secondary" (click)="resetFilters()">
+            <i class="bi bi-arrow-counterclockwise"></i>
+            Initialiser
+          </button>
+          <button class="btn btn-primary" (click)="applyFilters()">
+            <i class="bi bi-funnel"></i>
+            Filtrer
+          </button>
+          <button class="btn btn-outline-secondary toggle-advanced" (click)="toggleAdvancedFilters()">
+            <i class="bi" [ngClass]="showAdvancedFilters ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+            {{ showAdvancedFilters ? 'Masquer filtres avancés' : 'Plus de filtres' }}
+          </button>
+        </div>
+      </div>
+      
+      <!-- Filtres avancés (cachés par défaut) -->
+      <div class="advanced-filters" *ngIf="showAdvancedFilters">
+        <div class="filter-group">
+          <label for="fonction-filter">Fonction</label>
+          <div class="search-input">
+            <input type="text" id="fonction-filter" placeholder="Saisissez une fonction" [(ngModel)]="fonctionFilter">
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label for="email-filter">Email</label>
+          <div class="search-input">
+            <input type="text" id="email-filter" placeholder="Saisissez un email" [(ngModel)]="emailFilter">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Liste des administrateurs -->
+    <div class="users-list-section">
+      <div class="users-list-header">
+        <h2>Liste des administrateurs</h2>
+      </div>
+
+      <!-- Tableau des administrateurs -->
+      <div class="user-table-container">
+        <table class="user-table">
+          <thead>
+            <tr>
+              <th class="checkbox-cell">
+                <input type="checkbox" id="select-all">
+              </th>
+              <th>NOM & PRÉNOM</th>
+              <th>FONCTION</th>
+              <th>E-MAIL</th>
+              <th>STATUT</th>
+              <th class="actions-cell">ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- État de chargement -->
+            <tr *ngIf="loading">
+              <td colspan="6" class="loading-cell">
+                <div class="loading-spinner"></div>
+                <p>Chargement des administrateurs...</p>
+              </td>
+            </tr>
+
+            <!-- Aucun résultat -->
+            <tr *ngIf="!loading && displayedAdmins.length === 0">
+              <td colspan="6" class="no-results">
+                <i class="bi bi-search"></i>
+                <p>Aucun administrateur trouvé</p>
+              </td>
+            </tr>
+
+            <!-- Liste des administrateurs -->
+            <tr *ngFor="let admin of displayedAdmins" [class.inactive-row]="!admin.enabled">
+              <td class="checkbox-cell">
+                <input type="checkbox">
+              </td>
+              <td class="name-cell">{{admin.username}}</td>
+              <td>{{admin.fonction || 'Non défini'}}</td>
+              <td>{{admin.email}}</td>
+              <td>
+                <div class="toggle-switch-sm">
+                  <input type="checkbox" [id]="'status-' + admin.id" [(ngModel)]="admin.enabled" 
+                         (change)="updateAdminStatus(admin)" [disabled]="!canEditAdmin(admin)">
+                  <label [for]="'status-' + admin.id" class="toggle-label-sm">
+                    <span class="toggle-knob-sm"></span>
+                  </label>
+                </div>
+              </td>
+              <td class="actions-cell">
+                <button class="btn-action edit" [disabled]="!canEditAdmin(admin)" (click)="selectAdmin(admin)">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn-action delete" [disabled]="!canDeleteAdmin(admin)" (click)="deleteAdmin(admin.id)">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination-section">
+        <div class="items-per-page">
+          <span>Affichage de</span>
+          <strong>{{itemsPerPage}}</strong>
+          <span>administrateurs sur {{totalItems}} au total</span>
+        </div>
+
+        <div class="pagination">
+          <button class="page-nav prev" [disabled]="currentPage === 1" (click)="prevPage()">
+            <i class="bi bi-chevron-left"></i>
+          </button>
+
+          <ng-container *ngFor="let page of getPageNumbers()">
+            <ng-container *ngIf="page !== -1; else ellipsis">
+              <button class="page-number" [class.active]="page === currentPage" (click)="goToPage(page)">
+                {{page}}
+              </button>
+            </ng-container>
+            <ng-template #ellipsis>
+              <span class="page-ellipsis">...</span>
+            </ng-template>
+          </ng-container>
+
+          <button class="page-nav next" [disabled]="currentPage === totalPages" (click)="nextPage()">
+            <i class="bi bi-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vue Formulaire d'édition -->
+  <div class="edit-form-container" *ngIf="showEditForm">
+    <div class="edit-form-header">
+      <a href="javascript:void(0)" class="return-link" (click)="cancelEditing()">
+        <i class="bi bi-arrow-left"></i>
+        Retour à la liste
+      </a>
+      <h1>{{ isNewAdmin ? 'Ajouter un administrateur' : 'Modifier le profil de l\'administrateur' }}</h1>
+    </div>
+
+    <!-- Messages d'alerte -->
+    <div class="alert alert-error" *ngIf="errorMessage">
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      <span>{{errorMessage}}</span>
+      <button class="btn-close" (click)="errorMessage = ''">
+        <i class="bi bi-x"></i>
+      </button>
+    </div>
+
+    <div class="alert alert-success" *ngIf="successMessage">
+      <i class="bi bi-check-circle-fill"></i>
+      <span>{{successMessage}}</span>
+      <button class="btn-close" (click)="successMessage = ''">
+        <i class="bi bi-x"></i>
+      </button>
+    </div>
+
+    <div class="edit-form-content" *ngIf="selectedAdmin">
+      <form (ngSubmit)="updateAdmin()">
+        <!-- Informations de profil -->
+        <div class="form-section">
+          <h2>Profil</h2>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="username">Nom Complet</label>
+              <input type="text" id="username" [(ngModel)]="selectedAdmin.username" name="username" required>
+            </div>
+
+            <div class="form-group">
+              <label for="email">E-mail</label>
+              <input type="email" id="email" [(ngModel)]="selectedAdmin.email" name="email" required>
+            </div>
+
+            <div class="form-group">
+              <label for="fonction">Fonction</label>
+              <input type="text" id="fonction" [(ngModel)]="selectedAdmin.fonction" name="fonction">
+            </div>
+            
+            <!-- Ajout du champ Rôle pour les super-admins -->
+            <div class="form-group" *ngIf="isSuperAdmin">
+              <label for="role">Rôle</label>
+              <div class="select-wrapper">
+                <select id="role" [(ngModel)]="selectedAdmin.role" name="role">
+                  <option value="ADMIN">Administrateur secondaire</option>
+                  <option value="SUPER" *ngIf="!selectedAdmin.id">Super Administrateur</option>
+                </select>
+                <i class="bi bi-chevron-down"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Informations d'état -->
+        <div class="form-section">
+          <h2>État</h2>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>État</label>
+              <div class="toggle-switch">
+                <input type="checkbox" id="status" [(ngModel)]="selectedAdmin.enabled" name="enabled">
+                <label for="status" class="toggle-label">
+                  <span class="toggle-knob"></span>
+                </label>
+                <span class="status-text">{{ selectedAdmin.enabled ? 'Actif' : 'Inactif' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Actions -->
+        <div class="form-actions">
+          <button type="button" class="btn btn-outline-secondary" (click)="cancelEditing()">
+            Annuler
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="loading">
+            Enregistrer
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

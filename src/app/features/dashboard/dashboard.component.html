@@ -247,10 +247,12 @@
     <app-social-media *ngIf="showSocialMedia"></app-social-media>
     
     <!-- User Management Component -->
-    <app-user-management *ngIf="showUserManagement"></app-user-management>
+    <app-users *ngIf="showUsers"></app-users>
+
+    <app-admins *ngIf="showAdmins"></app-admins>
 
     <app-roles *ngIf="showRoles"></app-roles>
 
-    <app-profiles *ngIf="showProfiles"></app-profiles>
+    <!-- <app-profiles *ngIf="showProfiles"></app-profiles> -->
   </div>
 </div>
