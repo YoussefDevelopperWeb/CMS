@@ -1,0 +1,439 @@
+.document-container {
+  padding: 20px;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  
+  h2 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 24px;
+    font-weight: 600;
+  }
+}
+
+.filters-container {
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 25px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  
+  .form-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #495057;
+  }
+  
+  .form-control, .form-select, ::ng-deep .ng-select .ng-select-container {
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+    padding: 8px 12px;
+    font-size: 14px;
+    background-color: #f8f9fa;
+    
+    &:focus {
+      box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.1);
+      border-color: #80bdff;
+    }
+  }
+  
+  ::ng-deep .ng-select.ng-select-multiple .ng-select-container .ng-value-container .ng-value {
+    background-color: #e9f2ff;
+    color: #0d6efd;
+    border-radius: 4px;
+  }
+  
+  .btn-search {
+    height: 38px;
+    width: 100%;
+    font-weight: 500;
+  }
+}
+
+.documents-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  background-color: #fff;
+  padding: 15px 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  
+  h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #2c3e50;
+  }
+  
+  .view-options {
+    .btn {
+      padding: 6px 12px;
+      margin-left: 5px;
+      
+      &.active {
+        background-color: #0d6efd;
+        color: white;
+        border-color: #0d6efd;
+      }
+    }
+  }
+}
+
+.upload-progress {
+  margin-bottom: 20px;
+  
+  .progress {
+    height: 8px;
+    border-radius: 5px;
+    background-color: #e9ecef;
+    
+    .progress-bar {
+      background-color: #0d6efd;
+      border-radius: 5px;
+    }
+  }
+}
+
+// Styles pour le tableau en mode liste
+.table-responsive {
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  
+  .table {
+    margin-bottom: 0;
+    
+    thead th {
+      background-color: #f8f9fa;
+      font-weight: 600;
+      font-size: 14px;
+      color: #495057;
+      padding: 12px 16px;
+      border-bottom: 2px solid #e9ecef;
+    }
+    
+    tbody td {
+      padding: 12px 16px;
+      vertical-align: middle;
+      border-bottom: 1px solid #e9ecef;
+      font-size: 14px;
+    }
+    
+    .document-icon-sm {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      font-weight: bold;
+      
+      &.pdf { background-color: #f8d7da; }
+      &.docx, &.doc { background-color: #cfe2ff; }
+      &.xlsx, &.xls { background-color: #d1e7dd; }
+      &.pptx, &.ppt { background-color: #fff3cd; }
+      
+      .file-icon-sm {
+        font-size: 10px;
+        font-weight: bold;
+      }
+    }
+    
+    .btn-group .btn {
+      padding: 5px 10px;
+      margin-right: 2px;
+    }
+    
+    tr.table-active {
+      background-color: rgba(13, 110, 253, 0.1);
+    }
+  }
+}
+
+// Grid view et cards
+.documents-container {
+  &.grid-view {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    
+    .document-card {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      border: 1px solid #e9ecef;
+      border-radius: 10px;
+      overflow: hidden;
+      transition: all 0.2s ease-in-out;
+      background-color: #fff;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+      
+      &:hover {
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+      }
+      
+      &.selected {
+        border: 2px solid #0d6efd;
+      }
+      
+      .card-selection {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 1;
+      }
+      
+      .document-icon {
+        height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        
+        &.pdf { background-color: #f8d7da; }
+        &.docx, &.doc { background-color: #cfe2ff; }
+        &.xlsx, &.xls { background-color: #d1e7dd; }
+        &.pptx, &.ppt { background-color: #fff3cd; }
+        
+        .file-icon {
+          font-size: 24px;
+          font-weight: bold;
+          padding: 10px 15px;
+          background-color: rgba(255, 255, 255, 0.5);
+          border-radius: 4px;
+        }
+      }
+      
+      .document-info {
+        padding: 15px;
+        
+        .document-title {
+          font-size: 16px;
+          margin-bottom: 5px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          font-weight: 500;
+        }
+        
+        .document-details {
+          display: flex;
+          justify-content: space-between;
+          font-size: 12px;
+          color: #6c757d;
+        }
+      }
+      
+      .document-status {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+      }
+      
+      .document-actions {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px;
+        background-color: #f8f9fa;
+        border-top: 1px solid #e9ecef;
+        
+        .btn {
+          font-size: 12px;
+          padding: 4px 8px;
+        }
+      }
+    }
+  }
+  
+  &.list-view {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    
+    .document-card {
+      display: flex;
+      align-items: center;
+      padding: 15px;
+      border-radius: 10px;
+      background-color: #fff;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+      transition: all 0.2s ease-in-out;
+      
+      &:hover {
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+      
+      &.selected {
+        border: 2px solid #0d6efd;
+      }
+      
+      .card-selection {
+        margin-right: 15px;
+      }
+      
+      .document-icon {
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        margin-right: 15px;
+        
+        &.pdf { background-color: #f8d7da; }
+        &.docx, &.doc { background-color: #cfe2ff; }
+        &.xlsx, &.xls { background-color: #d1e7dd; }
+        &.pptx, &.ppt { background-color: #fff3cd; }
+        
+        .file-icon {
+          font-size: 14px;
+          font-weight: bold;
+        }
+      }
+      
+      .document-info {
+        flex: 1;
+        
+        .document-title {
+          font-size: 16px;
+          margin-bottom: 5px;
+          font-weight: 500;
+        }
+        
+        .document-details {
+          font-size: 12px;
+          color: #6c757d;
+        }
+      }
+      
+      .document-status {
+        margin: 0 15px;
+      }
+      
+      .document-actions {
+        display: flex;
+        gap: 8px;
+        
+        .btn {
+          font-size: 12px;
+          padding: 4px 8px;
+        }
+      }
+    }
+  }
+}
+
+.no-documents {
+  grid-column: 1 / -1;
+  padding: 40px;
+  text-align: center;
+  color: #6c757d;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  padding: 15px 20px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  
+  .showing-info {
+    font-size: 14px;
+    color: #6c757d;
+  }
+  
+  .pagination {
+    margin: 0;
+    
+    .page-link {
+      color: #0d6efd;
+      border-color: #e9ecef;
+      padding: 0.375rem 0.75rem;
+      
+      &:hover {
+        background-color: #e9ecef;
+      }
+    }
+    
+    .page-item.active .page-link {
+      background-color: #0d6efd;
+      border-color: #0d6efd;
+    }
+  }
+}
+
+// Styles pour le modal d'upload
+.upload-dropzone {
+  padding: 40px;
+  border: 2px dashed #ced4da;
+  border-radius: 10px;
+  text-align: center;
+  background-color: #f8f9fa;
+  transition: all 0.3s ease;
+  
+  &.drag-over {
+    background-color: #e9f2ff;
+    border-color: #0d6efd;
+  }
+  
+  .upload-icon {
+    color: #6c757d;
+    margin-bottom: 15px;
+  }
+  
+  .upload-text {
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+  
+  .upload-info {
+    font-size: 13px;
+    color: #6c757d;
+  }
+}
+
+.selected-file {
+  .card {
+    border-color: #e9ecef;
+    
+    .card-body {
+      padding: 12px;
+    }
+  }
+}
+
+// Styles pour les badges de statut
+.badge {
+  padding: 6px 10px;
+  font-weight: 500;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-radius: 4px;
+}
+
+// Animation de transition entre les étapes du modal
+.modal-body {
+  min-height: 300px;
+}

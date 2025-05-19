@@ -26,6 +26,14 @@
         "select-name": "off"
       }
     ],
-    "no-inline-styles": "off"
+    "no-inline-styles": "off",
+    "axe/aria": [
+      "default",
+      {
+        "aria-required-children": "off",
+        "aria-progressbar-name": "off"
+      }
+    ],
+    "axe/structure": "off"
   }
 }

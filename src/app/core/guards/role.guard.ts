@@ -3,7 +3,7 @@ import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from
 import { TokenStorageService } from '../services/token-storage.service';
 import { UserService } from '../services/user.service';
 import { Observable, of } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { map, catchError, switchMap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -31,6 +31,12 @@ export class RoleGuard implements CanActivate {
     
     const user = this.tokenService.getUser();
     
+    // Vérifier si l'utilisateur est un super administrateur - accès complet
+    if (user.roles.includes('ROLE_SUPER')) {
+      console.log('Super admin detected, granting access');
+      return true;
+    }
+    
     // Vérification des rôles requis si présents
     if (route.data['roles']) {
       const requiredRoles = route.data['roles'] as Array<string>;
@@ -48,13 +54,37 @@ export class RoleGuard implements CanActivate {
     
     // Vérification des privilèges basés sur la catégorie/sous-catégorie
     if (route.data['category']) {
-      return this.userService.checkUserPrivilege(
-        route.data['category'], 
-        route.data['souscategory'] || null
-      ).pipe(
+      const category = route.data['category'];
+      const souscategory = route.data['souscategory'] || null;
+      
+      console.log(`Checking privileges for category: ${category}, souscategory: ${souscategory}`);
+      
+      // Pour les catégories spécifiques, on peut vérifier également des privilèges spécifiques
+      if (route.data['privilegeName']) {
+        return this.userService.checkUserSpecificPrivilege(
+          category,
+          souscategory,
+          route.data['privilegeName']
+        ).pipe(
+          map(hasPrivilege => {
+            if (!hasPrivilege) {
+              console.log(`User does not have specific privilege: ${route.data['privilegeName']}`);
+              this.router.navigate(['/dashboard']);
+            }
+            return hasPrivilege;
+          }),
+          catchError(error => {
+            console.error('Error checking specific privilege:', error);
+            this.router.navigate(['/dashboard']);
+            return of(false);
+          })
+        );
+      }
+      
+      return this.userService.checkUserPrivilege(category, souscategory).pipe(
         map(hasPrivilege => {
           if (!hasPrivilege) {
-            console.log('User does not have required privileges for:', route.data['category']);
+            console.log(`User does not have required privileges for: category=${category}, souscategory=${souscategory}`);
             this.router.navigate(['/dashboard']);
           }
           return hasPrivilege;

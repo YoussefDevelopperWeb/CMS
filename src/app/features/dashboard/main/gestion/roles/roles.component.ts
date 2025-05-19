@@ -1,3 +1,8 @@
+/**
+ * Cette solution modifie complètement l'approche pour la gestion des privilèges.
+ * Au lieu d'initialiser localement les privilèges, nous allons les récupérer depuis la base de données.
+ */
+
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -17,6 +22,7 @@ export interface Privilege {
   category: string;
   subcategory?: string;
   subcategory2?: string;
+  souscategory?: string;
   selected: boolean;
 }
 
@@ -37,6 +43,7 @@ export class RolesComponent implements OnInit {
   confirmDeleteModal = false;
   roleToDelete: Role | null = null;
   activeTab = 'library'; // 'library' ou 'management'
+  currentEditingRoleId: number | undefined; // Pour stocker l'ID du rôle en cours d'édition
   
   // Propriétés pour la pagination
   currentPage = 1;
@@ -54,6 +61,7 @@ export class RolesComponent implements OnInit {
 
   // Propriétés pour les privilèges
   privileges: Privilege[] = [];
+  dbPrivileges: any[] = []; // Stocker les privilèges de la base de données
   filteredLibraryPrivileges: { [key: string]: Privilege[] } = {};
   filteredManagementPrivileges: { [key: string]: Privilege[] } = {};
   
@@ -80,17 +88,14 @@ export class RolesComponent implements OnInit {
       active: [true] // État actif par défaut
     });
     
-    // Initialiser les privilèges
-    this.initializePrivileges();
-    
     // Initialiser les états de visibilité
     this.initializeVisibilityStates();
   }
 
   ngOnInit(): void {
     this.loadRoles();
-    this.loadAllPrivileges();
-    this.prepareFilteredPrivileges();
+    // Charger les privilèges depuis la base de données au lieu de les initialiser localement
+    this.loadAllPrivilegesFromDb();
   }
   
   initializeVisibilityStates(): void {
@@ -132,102 +137,71 @@ export class RolesComponent implements OnInit {
     this.activeTab = tab;
   }
 
-  initializePrivileges(): void {
-    // Initialisation des privilèges de la librairie Web - Images
-    const webImagesPrivileges = [
-      { name: 'Importer un fichier', category: 'library', subcategory: 'web', subcategory2: 'images' },
-      { name: 'Modifier les informations du fichier', category: 'library', subcategory: 'web', subcategory2: 'images' },
-      { name: 'Dupliquer un fichier', category: 'library', subcategory: 'web', subcategory2: 'images' },
-      { name: 'Télécharger un fichier', category: 'library', subcategory: 'web', subcategory2: 'images' },
-      { name: 'Copier le lien du fichier', category: 'library', subcategory: 'web', subcategory2: 'images' },
-      { name: 'Partager par e-mail le fichier', category: 'library', subcategory: 'web', subcategory2: 'images' },
-      { name: 'Supprimer un fichier', category: 'library', subcategory: 'web', subcategory2: 'images' }
-    ];
-
-    // Les mêmes privilèges pour les autres sous-catégories web
-    const webVideosPrivileges = webImagesPrivileges.map(p => ({...p, subcategory2: 'videos'}));
-    const webPictosPrivileges = webImagesPrivileges.map(p => ({...p, subcategory2: 'pictos'}));
-    const webDocumentsPrivileges = webImagesPrivileges.map(p => ({...p, subcategory2: 'documents'}));
-    
-    // Privilèges mobiles
-    const mobilePrivileges = [
-      { name: 'Importer une application mobile', category: 'library', subcategory: 'mobile' },
-      { name: 'Modifier une application mobile', category: 'library', subcategory: 'mobile' },
-      { name: 'Supprimer une application', category: 'library', subcategory: 'mobile' }
-    ];
-
-    // Privilèges social media
-    const socialPrivileges = [
-      { name: 'Créer une publication', category: 'library', subcategory: 'social' },
-      { name: 'Modifier une publication', category: 'library', subcategory: 'social' },
-      { name: 'Supprimer une publication', category: 'library', subcategory: 'social' }
-    ];
-
-    // Privilèges PLV
-    const plvPrivileges = [
-      { name: 'Créer un support PLV', category: 'library', subcategory: 'plv' },
-      { name: 'Modifier un support PLV', category: 'library', subcategory: 'plv' },
-      { name: 'Supprimer un support PLV', category: 'library', subcategory: 'plv' }
-    ];
-
-    // Privilèges campagnes
-    const campagnesPrivileges = [
-      { name: 'Créer une campagne', category: 'library', subcategory: 'campagnes' },
-      { name: 'Modifier une campagne', category: 'library', subcategory: 'campagnes' },
-      { name: 'Supprimer une campagne', category: 'library', subcategory: 'campagnes' },
-      { name: 'Publier une campagne', category: 'library', subcategory: 'campagnes' }
-    ];
-    
-    // Privilèges de gestion utilisateurs
-    const managementUserPrivileges = [
-      { name: 'Modifier le profil', category: 'management', subcategory: 'utilisateurs' },
-      { name: 'Supprimer un utilisateur', category: 'management', subcategory: 'utilisateurs' },
-      { name: 'Créer un utilisateur', category: 'management', subcategory: 'utilisateurs' },
-      { name: 'Modifier les permissions d\'un utilisateur', category: 'management', subcategory: 'utilisateurs' }
-    ];
-    
-    // Privilèges de gestion des rôles
-    const managementRolePrivileges = [
-      { name: 'Ajouter un nouveau rôle', category: 'management', subcategory: 'roles' },
-      { name: 'Modifier un rôle', category: 'management', subcategory: 'roles' },
-      { name: 'Supprimer un rôle', category: 'management', subcategory: 'roles' }
-    ];
-
-    // Combiner tous les privilèges
-    this.privileges = [
-      ...webImagesPrivileges.map(p => ({...p, selected: false})),
-      ...webVideosPrivileges.map(p => ({...p, selected: false})),
-      ...webPictosPrivileges.map(p => ({...p, selected: false})),
-      ...webDocumentsPrivileges.map(p => ({...p, selected: false})),
-      ...mobilePrivileges.map(p => ({...p, selected: false})),
-      ...socialPrivileges.map(p => ({...p, selected: false})),
-      ...plvPrivileges.map(p => ({...p, selected: false})),
-      ...campagnesPrivileges.map(p => ({...p, selected: false})),
-      ...managementUserPrivileges.map(p => ({...p, selected: false})),
-      ...managementRolePrivileges.map(p => ({...p, selected: false}))
-    ];
-  }
-
-  loadAllPrivileges(): void {
+  // Nouvelle méthode pour charger tous les privilèges depuis la base de données
+  loadAllPrivilegesFromDb(): void {
     this.privilegeService.getAllPrivileges().subscribe({
       next: (privileges: any[]) => {
-        // Si des privilèges sont déjà définis dans la base de données,
-        // mettre à jour notre liste locale avec les IDs correspondants
-        privileges.forEach((dbPrivilege: any) => {
-          const matchingPriv = this.privileges.find(
-            p => p.name === dbPrivilege.name && 
-                 p.category === dbPrivilege.category && 
-                 p.subcategory === dbPrivilege.subcategory
-          );
-          if (matchingPriv) {
-            matchingPriv.id = dbPrivilege.id;
-          }
-        });
+        console.log('Privilèges récupérés de la base de données:', privileges);
+        
+        // Stocker les privilèges de la base de données
+        this.dbPrivileges = privileges;
+        
+        // Créer les privilèges avec selected à false par défaut
+        this.privileges = privileges.map(dbPriv => ({
+          id: dbPriv.id,
+          name: dbPriv.name,
+          category: dbPriv.category || this.mapCategoryFromDb(dbPriv),
+          subcategory: dbPriv.subcategory || this.mapSubcategoryFromDb(dbPriv),
+          subcategory2: dbPriv.subcategory2 || this.mapSubcategory2FromDb(dbPriv),
+          souscategory: dbPriv.souscategory,
+          selected: false
+        }));
+        
+        // Préparer les privilèges filtrés
+        this.prepareFilteredPrivileges();
+        
+        console.log('Privilèges chargés et mappés:', this.privileges);
       },
       error: (err: any) => {
         console.error('Erreur lors du chargement des privilèges', err);
       }
     });
+  }
+
+  // Fonctions d'aide pour mapper les champs de la base de données aux champs du frontend
+  mapCategoryFromDb(dbPriv: any): string {
+    // Logique pour déterminer la catégorie à partir des données de la base
+    if (dbPriv.souscategory && ['Utilisateurs', 'Roles', 'Administrateurs'].includes(dbPriv.souscategory)) {
+      return 'management';
+    }
+    return 'library';
+  }
+
+  mapSubcategoryFromDb(dbPriv: any): string {
+    // Logique pour déterminer la sous-catégorie
+    if (dbPriv.category === 'web' || dbPriv.category === 'Mobile' || 
+        dbPriv.category === 'SM' || dbPriv.category === 'PLV' || 
+        dbPriv.category === 'Campagnes') {
+      return dbPriv.category.toLowerCase();
+    }
+    
+    if (dbPriv.souscategory === 'Utilisateurs' || dbPriv.souscategory === 'Administrateurs') {
+      return 'utilisateurs';
+    }
+    
+    if (dbPriv.souscategory === 'Roles') {
+      return 'roles';
+    }
+    
+    return '';
+  }
+
+  mapSubcategory2FromDb(dbPriv: any): string {
+    // Logique pour déterminer la sous-catégorie 2
+    if (dbPriv.category === 'web' && dbPriv.souscategory) {
+      return dbPriv.souscategory.toLowerCase();
+    }
+    return '';
   }
 
   prepareFilteredPrivileges(): void {
@@ -282,6 +256,7 @@ export class RolesComponent implements OnInit {
 
   openAddModal(): void {
     this.isEditing = false;
+    this.currentEditingRoleId = undefined;
     this.roleForm.reset({active: true}); // Reset avec l'état actif par défaut
     this.resetPrivileges();
     this.showModal = true;
@@ -289,6 +264,7 @@ export class RolesComponent implements OnInit {
 
   openEditModal(role: Role): void {
     this.isEditing = true;
+    this.currentEditingRoleId = role.id;
     this.roleForm.patchValue({
       name: role.name,
       description: role.description || '',
@@ -309,19 +285,33 @@ export class RolesComponent implements OnInit {
     // Charger les privilèges du rôle depuis le service
     this.roleService.getRolePrivileges(roleId).subscribe({
       next: (response: any) => {
+        console.log('Privilèges du rôle chargés:', response);
+        
         // Marquer les privilèges qui sont associés à ce rôle comme sélectionnés
         const rolePrivileges = response.privileges || [];
+        
+        // Réinitialiser tous les privilèges à false
+        this.privileges.forEach(priv => priv.selected = false);
+        
+        // Mettre à jour les privilèges avec les données du serveur
         rolePrivileges.forEach((rolePriv: any) => {
-          if (rolePriv.statut) { // Vérifier si le privilège est actif
-            const privilegeId = rolePriv.privilege?.id;
-            if (privilegeId) {
-              const matchingPriv = this.privileges.find(p => p.id === privilegeId);
-              if (matchingPriv) {
-                matchingPriv.selected = true;
-              }
+          const privilegeId = rolePriv.privilege?.id;
+          const statut = rolePriv.statut;
+          
+          if (privilegeId) {
+            const matchingPriv = this.privileges.find(p => p.id === privilegeId);
+            if (matchingPriv) {
+              matchingPriv.selected = statut;
+              console.log(`Privilège avec ID ${privilegeId} trouvé et statut mis à ${statut}`);
+            } else {
+              console.log(`Privilège non trouvé dans la liste locale: ${privilegeId}`);
             }
           }
         });
+        
+        // Vérifiez les privilèges après le chargement
+        const selectedCount = this.privileges.filter(p => p.selected).length;
+        console.log(`Nombre de privilèges sélectionnés après chargement: ${selectedCount}`);
       },
       error: (err: any) => {
         console.error('Erreur lors du chargement des privilèges du rôle', err);
@@ -352,8 +342,8 @@ export class RolesComponent implements OnInit {
     this.isLoading = true;
     
     if (this.isEditing) {
-      // Récupérer l'ID du rôle édité depuis le rôle sélectionné dans la liste
-      const roleId = this.roles.find(r => r.name === this.roleForm.value.name)?.id;
+      // Utiliser l'ID du rôle stocké lors de l'ouverture du modal d'édition
+      const roleId = this.currentEditingRoleId;
       if (roleId) {
         roleData.id = roleId;
         this.roleService.updateRole(roleId, roleData).subscribe({
@@ -383,12 +373,14 @@ export class RolesComponent implements OnInit {
     // Obtenir les IDs des privilèges sélectionnés
     const selectedPrivilegeIds = this.privileges
       .filter(p => p.selected)
-      .map(p => p.id)
-      .filter(id => id !== undefined) as number[];
-      
+      .map(p => p.id as number);
+    
+    console.log('IDs des privilèges sélectionnés à envoyer:', selectedPrivilegeIds);
+    
     // Appel API pour enregistrer les privilèges
     this.roleService.assignPrivilegesToRole(roleId, selectedPrivilegeIds).subscribe({
-      next: () => {
+      next: (response) => {
+        console.log('Réponse du serveur pour les privilèges:', response);
         console.log('Privilèges enregistrés avec succès');
       },
       error: (err: any) => {
@@ -480,18 +472,24 @@ export class RolesComponent implements OnInit {
     this.privileges
       .filter(p => p.category === category)
       .forEach(p => p.selected = value);
+    
+    console.log(`Tous les privilèges de la catégorie ${category} sont maintenant ${value ? 'sélectionnés' : 'désélectionnés'}`);
   }
 
   toggleCategoryPrivileges(category: string, subcategory: string, value: boolean): void {
     this.privileges
       .filter(p => p.category === category && p.subcategory === subcategory)
       .forEach(p => p.selected = value);
+    
+    console.log(`Privilèges de la sous-catégorie ${subcategory} sont maintenant ${value ? 'sélectionnés' : 'désélectionnés'}`);
   }
 
   toggleSubcategoryPrivileges(category: string, subcategory: string, subcategory2: string, value: boolean): void {
     this.privileges
       .filter(p => p.category === category && p.subcategory === subcategory && p.subcategory2 === subcategory2)
       .forEach(p => p.selected = value);
+    
+    console.log(`Privilèges de la sous-catégorie ${subcategory2} sont maintenant ${value ? 'sélectionnés' : 'désélectionnés'}`);
   }
 
   isCategorySelected(category: string): boolean {
@@ -513,7 +511,7 @@ export class RolesComponent implements OnInit {
     return subcategoryPrivileges.length > 0 && subcategoryPrivileges.every(p => p.selected);
   }
 
-  // FIX: Corrected method signatures to handle Event objects correctly
+  // Méthodes pour gérer les événements des checkboxes
   updateCategorySelection(category: string, subcategory: string, event?: Event): void {
     if (event) {
       event.stopPropagation();

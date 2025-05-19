@@ -17,8 +17,6 @@ $shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
 $shadow-md: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
 $transition: all 0.2s ease;
 $border-radius: 8px;
-$sidebar-width: 245px;
-$sidebar-collapsed-width: 70px;
 $dark-gray: #334155;
 $light-gray: #f8f9fa;
 $toggle-green: #4ade80;
@@ -73,8 +71,7 @@ body {
 
 // Conteneur principal optimisé
 .roles-container {
-  width: calc(100% - #{$sidebar-width});
-  margin-left: $sidebar-width;
+  width: 100% ;
   padding: 20px;
   background-color: $bg-color;
   min-height: calc(100vh - 56px);
@@ -82,11 +79,7 @@ body {
   overflow-x: hidden;
   position: relative;
   
-  &.sidebar-collapsed {
-    width: calc(100% - #{$sidebar-collapsed-width});
-    margin-left: $sidebar-collapsed-width;
-  }
-  
+
   @media (max-width: 991px) {
     width: 100%;
     margin-left: 0;
@@ -226,7 +219,8 @@ body {
   margin-bottom: 16px;
   padding: 16px;
   border: 1px solid $border-color;
-  
+  border-color: #444;
+
   @media (max-width: 576px) {
     padding: 12px;
   }
@@ -235,7 +229,7 @@ body {
     @include flex(row, flex-start, flex-end);
     flex-wrap: wrap;
     gap: 14px;
-    
+
     @media (max-width: 991px) {
       flex-direction: column;
       align-items: stretch;
@@ -291,8 +285,8 @@ body {
   margin-bottom: 20px;
   display: flex;
   flex-direction: column;
-  border: 1px solid $border-color;
-  
+  border: 1px solid #444;
+
   .list-header {
     @include flex(row, space-between, center);
     padding: 14px 16px;
@@ -897,7 +891,7 @@ body {
       border-color: $danger-color;
       
       &:hover {
-        background-color: color.adjust($danger-color, $lightness: -5%);
+        background-color: color.scale($danger-color, $lightness: -13.7837837838%);
       }
     }
   }

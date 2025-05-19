@@ -95,9 +95,11 @@ export class PrivilegeService {
 
   // Assigner plusieurs privilèges à un rôle
   assignPrivilegesToRole(roleId: number, privilegeIds: number[]): Observable<any> {
+    // CORRECTION: Envoyer directement le tableau des IDs (comme attendu par le backend)
     return this.http.post(`${API_URL}privileges/roles/${roleId}/batch`, privilegeIds, {
       headers: new HttpHeaders({
-        'Authorization': 'Bearer ' + this.tokenStorageService.getToken()
+        'Authorization': 'Bearer ' + this.tokenStorageService.getToken(),
+        'Content-Type': 'application/json'
       })
     }).pipe(
       catchError(error => {

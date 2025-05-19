@@ -120,22 +120,18 @@ export class RoleService {
   }
 
   // Assigner des privilèges à un rôle
-assignPrivilegesToRole(roleId: number, privilegeIds: number[]): Observable<any> {
-  const privilegeData = {
-    roleId: roleId,
-    privilegeIds: privilegeIds
-  };
-  console.log(privilegeData)
-  return this.http.post(`${API_URL}privileges/roles/${roleId}/batch`, privilegeData, {
-    headers: new HttpHeaders({
-      'Authorization': 'Bearer ' + this.tokenStorageService.getToken(),
-      'Content-Type': 'application/json'
-    })
-  }).pipe(
-    catchError(error => {
-      console.error(`Error assigning privileges to role with ID ${roleId}:`, error);
-      return throwError(() => error);
-    })
-  );
-}
+  assignPrivilegesToRole(roleId: number, privilegeIds: number[]): Observable<any> {
+    // CORRECTION: Envoyer directement le tableau des IDs au lieu d'un objet
+    return this.http.post(`${API_URL}privileges/roles/${roleId}/batch`, privilegeIds, {
+      headers: new HttpHeaders({
+        'Authorization': 'Bearer ' + this.tokenStorageService.getToken(),
+        'Content-Type': 'application/json'
+      })
+    }).pipe(
+      catchError(error => {
+        console.error(`Error assigning privileges to role with ID ${roleId}:`, error);
+        return throwError(() => error);
+      })
+    );
+  }
 }

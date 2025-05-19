@@ -17,7 +17,29 @@ export class UserService {
     private tokenStorageService: TokenStorageService
   ) { }
 
-
+/**
+ * Vérifie si l'utilisateur possède un privilège spécifique pour une catégorie et sous-catégorie données
+ * @param category Catégorie du privilège (ex: 'web', 'Mobile', 'SM', 'PLV', etc.)
+ * @param souscategory Sous-catégorie du privilège (ex: 'images', 'videos', 'pictogrammes', etc.)
+ * @param privilegeName Nom spécifique du privilège (ex: 'import_image', 'edit_image', etc.)
+ * @returns Observable<boolean> indiquant si l'utilisateur possède le privilège
+ */
+checkUserSpecificPrivilege(category: string, souscategory: string | null, privilegeName: string): Observable<boolean> {
+  return this.http.post<boolean>(`${API_URL}user/check-specific-privilege`, {
+    category,
+    souscategory,
+    privilegeName
+  }, {
+    headers: new HttpHeaders({
+      'Authorization': 'Bearer ' + this.tokenStorageService.getToken()
+    })
+  }).pipe(
+    catchError(error => {
+      console.error('Error checking specific privilege:', error);
+      return of(false);
+    })
+  );
+}
 
 getUserDashboard(): Observable<any> {
     console.log('user')

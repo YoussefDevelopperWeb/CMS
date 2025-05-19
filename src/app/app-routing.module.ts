@@ -61,6 +61,7 @@ export const routes: Routes = [
     ]
   },
 
+
   // Redirection par défaut
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   
